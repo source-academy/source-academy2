@@ -1,0 +1,12 @@
+<%= admin_header @conn, "Source Academy Administration Panel" %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <p>
+        Welcome to the Admin Interface,
+        Please use navigation bar above to manage the course
+      </p>
+    </div>
+  </div>
+</div>

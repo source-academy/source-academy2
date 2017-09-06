@@ -1,0 +1,18 @@
+<div class="pt-tabs">
+  <ul class="pt-tab-list" role="tablist">
+      <%= for tab <- @tabs do %>
+        <%= if @active_tab == tab do %>
+          <li class="pt-tab" role="tab" aria-selected="true">
+            <%= link tab, to: "?tab=" <> tab %>
+          </li>
+        <% else %>
+          <li class="pt-tab" role="tab">
+            <%= link tab, to: "?tab=" <> tab %>
+          </li>
+        <% end %>
+    <% end %>
+  </ul>
+  <div class="pt-tab-panel" role="tabpanel">
+    <%= @content.() %>
+  </div>
+</div>

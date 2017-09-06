@@ -1,0 +1,12 @@
+<%= admin_header @conn, "Assessments", fn -> %>
+  <%= link "Create Assessment", to: admin_assessment_path(@conn, :new), class: "pt-button pt-intent-success" %>
+<% end %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <%= simple_tabs @active_tab, ["Missions", "Sidequests", "Paths", "Contests"], fn -> %>
+        <%= render "table.html", conn: @conn, assessments: @assessments %>
+      <% end %>
+    </div>
+</div>

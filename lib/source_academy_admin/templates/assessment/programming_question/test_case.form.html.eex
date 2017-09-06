@@ -1,0 +1,30 @@
+<%= form_for @changeset, @action, [method: @method], fn f -> %> 
+  <%= hidden_input f, :redirect_to, value: current_path(@conn) %>
+  <tr>
+    <td><%= input_group f, "", :code %></td>
+    <td><%= input_group f, "", :expected_result %></td>
+    <td>
+      <div class="pt-input-group">
+        <div class="pt-form-content">
+          <label class="pt-control pt-checkbox">
+            <%= checkbox f, :is_private %>
+            <span class="pt-control-indicator"></span>
+          </label>
+        </div>
+      </div>
+    </td>
+    <td>
+      <%= submit (if @method == "post", do: "Add", else: "Save"),
+            class: "pt-button pt-intent-" <>
+              (if @method == "post", do: "success", else: "primary") %>
+      <%= if @method == "put" do %>
+        <%= link "Delete",
+              method: "delete",
+              to: admin_assessment_programming_question_test_case_path(@conn,
+                    :delete, @assessment.id, @programming_question.id,
+                    @changeset.data.id) <> "?redirect_to=" <> current_path(@conn),
+              class: "pt-button pt-intent-danger" %>
+      <% end %>
+    </td>
+  </tr>
+<% end %>

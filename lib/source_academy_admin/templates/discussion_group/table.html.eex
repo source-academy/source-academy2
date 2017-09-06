@@ -1,0 +1,33 @@
+<%= if Enum.empty?(@entries) do %>
+  <%= non_ideal_state "No Students",
+        "There are no students in this discussion group",
+        icon: "user" %>
+<% else %>
+  <table class="pt-table pt-condensed" style="width:100%">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th style="width:20px;">Level</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for entry <- @entries do %>
+      <tr>
+        <td>
+          <%= display_name(entry.student) %>
+        </td>
+        <td>
+          <%= entry.student.level %>
+        </td>
+        <td>
+          <div class="pt-button-group">
+            <%= view_student_link(@conn, entry) %>
+            <%= remove_student_link(@conn, entry) %>
+          </div>
+        </td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

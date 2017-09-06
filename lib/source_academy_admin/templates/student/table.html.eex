@@ -1,0 +1,38 @@
+<%= if Enum.empty?(@students) do %>
+  <%= non_ideal_state "No Students",
+        "There are No Students in Your Discussion Group",
+        icon: "user" %>
+<% else %>
+  <table class="pt-table pt-bordered" style="width:100%">
+    <thead>
+      <tr>
+        <th style="width:20px;">Lv</th>
+        <th>Name</th>
+        <th style="width:200px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for student <- @students do %>
+        <tr>
+          <td>
+            <%= student.level %>
+          </td>
+          <td>
+            <%= display_name(student) %>
+            </td>
+          <td>
+            <div class="pt-button-group">
+                <%= link "View", class: "pt-button", to: admin_student_path(@conn, :show, student) %>
+                <%= link (if student.is_phantom,
+                        do: "To Student",
+                        else: "To Phantom"),
+                    method: "put",
+                    to: admin_student_toggle_phantom_path(@conn, :toggle_phantom, student.id),
+                    class: "pt-button is-small" %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

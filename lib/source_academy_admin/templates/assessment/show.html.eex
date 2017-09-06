@@ -1,0 +1,29 @@
+<%= admin_header @conn, display_assessment_name(@assessment) <> " : " <> @assessment.title, fn -> %>
+  <%= if !@assessment.is_published do %>
+    <%= link "Publish",
+          method: "put",
+          to: admin_assessment_publish_path(@conn, :publish, @assessment.id),
+          data: [confirm: "You cannot revert this! Are you sure?"],
+          class: "pt-button pt-intent-warning" %>
+  <% end %>
+  <%= link "Edit Details", to: admin_assessment_path(@conn, :edit, @assessment.id),
+          class: "pt-button pt-intent-success" %>
+<% end %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="heading">Questions</div>
+    <div class="body">
+      <%= render "question/list.html",
+            conn: @conn,
+            assessment: @assessment,
+            questions: @assessment.questions %>
+    </div>
+    <div class="distinguish">
+      <%= render "question/form.html",
+            method: "post",
+            changeset: @question_changeset,
+            action: admin_assessment_question_path(@conn, :create, @assessment.id) %>
+    </div>
+  </div>
+</div>

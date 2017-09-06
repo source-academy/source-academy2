@@ -1,0 +1,13 @@
+<div class="sa-panel sa-unauthorized">
+  <div class="body">
+    <h3>Insufficient Privileges</h3>
+    <hr />
+    You must be logged in as course staff to view this page.
+    <br />
+    <%= if @current_user do %>
+      Your current role is: <strong>
+        <%= @current_user.role %>
+        </strong>
+    <% end %>
+  </div>
+</div>

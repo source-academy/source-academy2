@@ -1,0 +1,46 @@
+<%= admin_header @conn,
+  ("Submissions for " <> display_assessment_name(@assessment)) %>
+
+<div class="sa-admin-content">
+  <%= if !Enum.empty?(@not_attempted) do %>
+    <div class="sa-panel">
+      <div class="distinguish">
+        <h4>Has Not Attempted</h4>
+        <%= render "submission/student.html", students: @not_attempted %>
+      </div>
+    </div>
+  <% end %>
+
+  <% attempting = Enum.filter(@submissions, &(&1.status == :attempting)) %>
+  <div class="sa-panel">
+    <div class="body">
+      <h4>Attempting</h4>
+      <%= render "submission/table.html",
+            conn: @conn,
+            assessment: @assessment,
+            submissions: attempting %>
+    </div>
+  </div>
+
+  <% submitted = Enum.filter(@submissions, &(&1.status == :submitted)) %>
+  <div class="sa-panel">
+    <div class="body">
+      <h4>Submitted</h4>
+      <%= render "submission/table.html",
+            conn: @conn,
+            assessment: @assessment,
+            submissions: submitted %>
+    </div>
+  </div>
+
+  <% graded = Enum.filter(@submissions, &(&1.status == :graded)) %>
+  <div class="sa-panel">
+    <div class="body">
+      <h4>Graded</h4>
+      <%= render "submission/table.html",
+            conn: @conn,
+            assessment: @assessment,
+            submissions: graded %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+<%= render "tabs.html", conn: @conn %>
+
+<%= for assessment <- @assessments do %>
+  <%= render SourceAcademyWeb.AssessmentView, "card.html",
+        assessment: assessment,
+        conn: @conn,
+        submission: Enum.find(@submissions,
+            &(&1.assessment_id == assessment.id)) %>
+<% end %>

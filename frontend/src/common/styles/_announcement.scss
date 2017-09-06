@@ -1,0 +1,34 @@
+.sa-announcement-card {
+  margin: 15px auto;
+  box-shadow: none;
+  max-width: 760px;
+  padding: 0;
+
+  .heading {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding: 10px 5px;
+    color: $dark-gray1;
+    font-weight: 700;
+    background-color: $light-gray3;
+    .more-icon {
+      cursor: pointer;
+    }
+  }
+
+  .content {
+    padding: 10px 25px;
+  }
+
+  .author {
+    background: $light-gray4;
+    font-weight: 500;
+    font-size: 0.9em;
+    padding: 5px 15px;
+    color: $gray4;
+  }
+}
+
+.sa-pinned-announcements .heading {
+  border-left: 4px solid $dark-gray1;
+}

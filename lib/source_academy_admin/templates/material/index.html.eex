@@ -1,0 +1,26 @@
+<%= admin_header @conn, "Materials", fn -> %>
+  <%= link "Upload Material",
+        to: admin_material_path(@conn, :new),
+        class: "pt-button pt-intent-success" %>
+<% end %>
+
+<div class="sa-admin-content">
+  <%= if Enum.empty?(@categories) do %>
+    <div class="sa-panel">
+      <div class="body">
+        <%= non_ideal_state "There are no categories",
+              "Add some category before uploading materials" %>
+      </div>
+    </div>
+  <% else %>
+    <%= render "category.list.html",
+        conn: @conn,
+        materials: @materials,
+        categories: @categories %>
+  <% end %>
+  <div class="sa-panel">
+    <div class="distinguish">
+      <%= render "category.form.html", conn: @conn, changeset: @category_changeset %>
+    </div>
+  </div>
+</div>

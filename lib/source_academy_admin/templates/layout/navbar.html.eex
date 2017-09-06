@@ -1,0 +1,25 @@
+<div class="sa-admin-navbar">
+  <div class="first-row">
+    <div class="container">
+      <div class="pt-button-group pt-minimal">
+        <%= link "Announcements", to: admin_announcement_path(@conn, :index), class: "pt-button" %>
+        <%= link "Assessments", to: admin_assessment_path(@conn, :index), class: "pt-button" %>
+        <%= link "My Students", to: admin_page_path(@conn, :my_student), class: "pt-button" %>
+        <%= link "Gradings", to: admin_page_path(@conn, :gradings), class: "pt-button" %>
+        <%= link "Path Submissions", to: admin_page_path(@conn, :path_submissions), class: "pt-button" %>
+      </div>
+    </div>
+  </div>
+  <div class="second-row">
+    <div class="container">
+      <div class="pt-button-group pt-minimal">
+        <%= link "Achievements", to: admin_achievement_path(@conn, :index), class: "pt-button" %>
+        <%= link "Materials", to: admin_material_path(@conn, :index), class: "pt-button" %>
+        <%= link "Discussion Groups", to: admin_discussion_group_path(@conn, :index), class: "pt-button" %>
+        <%= link "Students", to: admin_student_path(@conn, :index), class: "pt-button" %>
+        <%= link "Libraries", to: admin_library_path(@conn, :index), class: "pt-button" %>
+      </div>
+    </div>
+  </div>
+</div>
+

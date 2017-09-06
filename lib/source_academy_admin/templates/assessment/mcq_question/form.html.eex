@@ -1,0 +1,7 @@
+<% action = admin_assessment_mcq_question_path(@conn,
+    :update, @assessment.id, @mcq_question.id) %>
+<%= form_for @changeset, action, [method: "put"], fn f -> %>
+  <%= hidden_input f, :redirect_to, value: current_path(@conn) %>
+  <%= input_group f, "Content", :content, type: :richtext, rows: 15 %>
+  <%= submit "Save", class: "pt-button pt-intent-success" %>
+<% end %>

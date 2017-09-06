@@ -1,0 +1,135 @@
+.sa-question-header, .sa-primary-tabs {
+  position: fixed;
+  top: $pt-navbar-height;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  background: $dark-gray4;
+  margin: 0 auto;
+  z-index: 9;
+}
+
+.sa-question-header {
+  height: $pt-navbar-height;
+}
+
+.sa-primary-tabs {
+  .pt-button::before {
+    color: $gray3;
+  }
+
+  .pt-button span {
+    font-weight: 700;
+    color: $gray5;
+  }
+
+  .tabs {
+    padding-top: 8px;
+    max-width: 720px;
+
+    .pt-button {
+      text-align: left;
+    }
+
+    .pt-button.pt-active {
+      background: $light-gray1;
+      height: $pt-navbar-height - 8px;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      border-bottom-left-radius: 0px;
+      border-bottom-right-radius: 0px;
+      border-left: 0.5px solid $light-gray3;
+      border-right: 0.5px solid $light-gray3;
+    }
+
+    .pt-button.pt-active::before {
+      color: $dark-gray4 !important;
+    }
+
+    .pt-button.pt-active span {
+      color: $dark-gray4 !important;
+    }
+
+    @media(max-width: 768px) {
+      .pt-button {
+        text-align: center;
+      }
+      .pt-button span {
+        display: none;
+      }
+    }
+  }
+}
+
+.sa-secondary-tabs {
+  width: 100%;
+  position: fixed;
+  top: 2 * $pt-navbar-height;
+  background: $light-gray1;
+  padding: 10px;
+  z-index: 9;
+
+  .container {
+    margin: 0 auto;
+    max-width: 720px;
+  }
+
+  .pt-button-group {
+    color: $dark-gray3;
+  }
+
+  .pt-button {
+    margin: 0px 5px;
+    padding: 0px 20px;
+    font-weight: 700;
+    border-radius: 10px !important;
+  }
+
+  .pt-button.pt-active {
+    background: $light-gray4;
+  }
+
+  @media(max-width: 768px) {
+    .pt-button span {
+      display: none
+    }
+  }
+}
+
+.sa-heading {
+  background: $light-gray3;
+  color: $gray1;
+  font-weight: 700;
+  padding: 10px;
+  color: $dark-gray4;
+}
+
+.sa-heading.warning {
+  color: $pt-intent-warning;
+}
+
+.sa-heading.danger {
+  color: $pt-intent-danger;
+}
+
+.sa-content {
+  padding-top: 2 * $pt-navbar-height;
+  padding-bottom: 50px;
+}
+
+.sa-status {
+  .numbers {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    span, label {
+      display: block;
+    }
+    span {
+      font-size: 2em;
+    }
+    label {
+      text-transform: uppercase;
+    }
+  }
+}

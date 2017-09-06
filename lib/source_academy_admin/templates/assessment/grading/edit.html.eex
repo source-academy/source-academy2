@@ -1,0 +1,18 @@
+<% assessment = @changeset.data.assessment %>
+<% student = @changeset.data.student %>
+<%= admin_header @conn, display_grading_header(assessment, student) %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <%= render "grading/form.html",
+            changeset: @changeset,
+            method: "put",
+            action:
+              admin_assessment_grading_path(@conn,
+                :update_grade,
+                assessment.id,
+                @changeset.data.id) %>
+    </div>
+  </div>
+</div>

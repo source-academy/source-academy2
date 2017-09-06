@@ -1,0 +1,68 @@
+<%= admin_header @conn, display_name(@student), fn -> %>
+  <% student = @conn.assigns[:student] %>
+  <%= link "Send E-mail", to: ("mailto:" <> student.user.email), class: "pt-button" %>
+  <div class="pt-button pt-intent-primary">
+    View Submissions
+  </div>
+<% end %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="heading">
+      Summary
+    </div>
+    <div class="body">
+      <table style="width:100%" class="pt-table pt-striped">
+        <thead>
+          <th style="width:200px">Field</th>
+          <th>Value</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Full Name</td>
+            <td><%= display_name(@student.user) %></td>
+          </tr>
+          <tr>
+            <td>Avenger</td>
+            <td>
+              <%= if @staff != nil do %>
+                <%= display_name(@staff) %>
+              <% else %>
+                Not in any Discussion Group
+              <% end %>
+            </td>
+          </tr>
+          <tr>
+            <td>Level</td>
+            <td><%= @student.level %></td>
+          </tr>
+          <tr>
+            <td>Total XP</td>
+            <td><%= @student.experience_point %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="sa-panel">
+    <div class="heading">
+      Achievements
+    </div>
+    <div class="body">
+    </div>
+  </div>
+  <div class="sa-panel">
+    <div class="heading">
+      XP History
+    </div>
+    <div class="distinguish">
+      <%= render "xp_history_form.html",
+            xp_history_changeset: @xp_history_changeset,
+            conn: @conn,
+            student: @student %>
+    </div>
+    <div class="body">
+      <%= render "xp_history_table.html", xp_history: @xp_history %>
+    </div>
+  </div>
+</div>

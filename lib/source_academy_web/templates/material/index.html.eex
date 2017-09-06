@@ -1,0 +1,23 @@
+<%= render "tabs.html", conn: @conn %>
+
+<div class="container">
+  <%= if Enum.empty?(@categories) do %>
+    <div class="sa-panel">
+      <div class="body">
+        <%= non_ideal_state "No Materials", "No materials uploaded so far",
+            icon: "folder-close" %>
+      </div>
+    </div>
+  <% end %>
+  <%= for category <- @categories do %>
+    <div class="sa-panel">
+      <div class="heading">
+        <%= category.name %>
+      </div>
+      <div class="body">
+        <% materials = Enum.filter(@materials, &(&1.category_id == category.id)) %>
+        <%= render "list.html", conn: @conn, materials: materials %>
+      </div>
+    </div>
+  <% end %>
+</div>

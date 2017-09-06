@@ -1,0 +1,16 @@
+<div class="sa-assessment-briefing pt-elevation-0">
+  <h3>
+    <%= display_assessment_name(@assessment) %>:
+    <%= @assessment.title %>
+  </h3>
+  <hr />
+  <h4>Briefing</h4>
+  <div class="markdown-view">
+    <%= @assessment.briefing %>
+  </div>
+
+  <%= link to: assessment_path(@conn, :question, @assessment.id, 1),
+           class: "pt-button pt-intent-success" do %>
+    Continue
+  <% end %>
+</div>

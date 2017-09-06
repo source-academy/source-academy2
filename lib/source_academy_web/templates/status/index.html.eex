@@ -1,0 +1,37 @@
+<%= render "tabs.html", conn: @conn %>
+<div class="sa-status container">
+  <h3><%= display_name(@current_student) %></h3>
+  <h6>Level <%= @current_student.level %></h6>
+  <p><%= @current_student.user.email %></p>
+  <div class="numbers">
+    <div class="row">
+      <div class="col-xs-6 xp-col">
+        <span><%= @current_student.experience_point %></span>
+        <label>Total XP</label>
+      </div>
+      <div class="col-xs xp-col">
+        <span><%= @xp_to_next %></span>
+        <label>To Next Level</label>
+      </div>
+    </div>
+  </div>
+  <div class="xp-history">
+    <h6>HISTORY</h6>
+    <table class="pt-table pt-bordered" style="width:100%">
+      <thead>
+        <th style="width:150px">Amount</th>
+        <th style="width:100px">Given At</th>
+        <th>Reason</th>
+      </thead>
+      <tbody>
+        <%= for xp_history <- @xp_history do %>
+          <tr>
+            <td><%= display_datetime(xp_history.inserted_at) %></td>
+            <td><%= xp_history.amount %></td>
+            <td><%= xp_history.reason %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

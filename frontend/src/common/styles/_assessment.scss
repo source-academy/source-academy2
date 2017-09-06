@@ -1,0 +1,112 @@
+.sa-assessment-card {
+  background: white;
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 20px;
+  height: 200px;
+  padding: 0;
+  border-radius: 5px;
+  padding-bottom: 1vh;
+
+  .cover {
+    display: flex;
+    justify-content: center;
+    flex-basis: 25%;
+    align-items: center;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .cover img {
+    flex-shrink: 0;
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .description {
+    position: relative;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 15px;
+    padding-bottom: 50px;
+    height: 100%;
+
+    p {
+      padding: 5px;
+      color: $gray2;
+      margin-bottom: 10px;
+    }
+
+    .order {
+      color: $gray2;
+      font-weight: 300;
+    }
+
+    .due-on {
+      color: $gray1;
+    }
+
+    .due-at {
+      padding-top: 15px;
+      font-weight: 300;
+      span {
+        color: $gray2;
+        margin-left: 10px;
+        margin-right: 10px;
+      }
+    }
+
+    .pt-button {
+      padding: 0;
+      border-radius: 0px;
+      color: $dark-gray2;
+      font-weight: 500;
+      width: 100%;
+      height: 100%;
+    }
+
+    .pt-button.locked {
+      color: $gray4
+    }
+
+    .pt-button.graded {
+      color: $blue3
+    }
+
+    .pt-button.unlocked, .pt-button.attempting {
+      color: $green3
+    }
+  }
+
+  @media(max-width: 768px) {
+    .cover {
+      display: none
+    }
+  }
+
+  .controls {
+    position: absolute;
+    background: $light-gray4;
+    bottom: 0px;
+    right: 8px;
+    height: 50px;
+    left: 8px;
+  }
+
+  .controls .col-xs {
+    padding: 0
+  }
+ }
+
+.sa-assessment-card.row {
+  padding: 0;
+}
+
+.sa-assessment-briefing {
+  background: white;
+  max-width: 768px;
+  margin: 20px auto;
+  padding: 25px;
+}

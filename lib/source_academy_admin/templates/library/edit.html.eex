@@ -1,0 +1,12 @@
+<%= admin_header @conn, "Edit Library \"#{@changeset.data.title}\"" %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <%= render "form.html",
+            changeset: @changeset,
+            method: "put",
+            action: admin_library_path(@conn, :update, @changeset.data.id) %>
+    </div>
+  </div>
+</div>

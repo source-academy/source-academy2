@@ -1,0 +1,12 @@
+<%= admin_header @conn, "Playground Libraries", fn -> %>
+  <%= link "Create Library",
+        to: admin_library_path(@conn, :new),
+        class: "pt-button pt-intent-success" %>
+<% end %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <%= render "table.html", conn: @conn, libraries: @libraries %>
+    </div>
+</div>

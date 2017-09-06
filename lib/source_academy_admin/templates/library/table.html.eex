@@ -1,0 +1,23 @@
+<%= if Enum.empty?(@libraries) do %>
+  <%= non_ideal_state "No Libraries",
+        "There are no libraries installed in playground",
+        icon: "folder-open" %>
+<% else %>
+  <table class="pt-table pt-bordered" style="width:100%">
+    <thead>
+      <th style="width:200px;">Name</th>
+      <th style="width:200px;"></th>
+    </thead>
+    <tbody>
+      <%= for library <- @libraries do %>
+          <tr>
+            <td><%= library.title %></td>
+            <td>
+              <%= link "Edit", class: "pt-button pt-intent-primary",
+                    to: admin_library_path(@conn, :edit, library.id) %>
+            </td>
+          </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

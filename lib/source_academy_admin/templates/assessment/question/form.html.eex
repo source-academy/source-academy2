@@ -1,0 +1,35 @@
+<%= form_for @changeset, @action, [method: @method], fn f -> %>
+  <%= if assigns[:redirect_to] != nil do %>
+    <%= hidden_input f, :redirect_to, value: assigns[:redirect_to] %>
+  <% end %>
+  <div class="row">
+    <div class="col-xs-5">
+      <%= input_group f, "Title", :title %>
+    </div>
+    <div class="col-xs-3">
+      <%= if @method == "put" do %>
+        Type
+        <div style="margin-top:8px;font-weight:700;">
+          <%= display_question_type(@changeset.data) %>
+        </div>
+      <% else %>
+        <%= input_group f, "Type", :question_type, type: :select,
+            options: [
+              {"Programming", :programming},
+              {"Multiple Choice", :mcq}
+            ] %>
+      <% end %>
+    </div>
+    <div class="col-xs-2">
+      <%= input_group f, "Weight", :weight %>
+    </div>
+    <div class="col-xs">
+      <br />
+      <%= if @method == "post" do %>
+        <%= submit "Add", class: "pt-button pt-intent-success" %>
+      <% else %>
+        <%= submit "Save", class: "pt-button pt-intent-primary" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

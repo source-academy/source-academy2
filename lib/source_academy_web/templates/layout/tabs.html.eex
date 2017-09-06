@@ -1,0 +1,8 @@
+<div class="sa-primary-tabs row center-xs">
+  <div class="tabs pt-navbar-group pt-button-group pt-large pt-fill col-xs">
+    <%= primary_tab @conn, "Inbox", :inbox, to: inbox_path(@conn, :index), icon: "inbox" %>
+    <%= primary_tab @conn, "Journal", :journal, to: journal_path(@conn, :index), icon: "book" %>
+    <%= primary_tab @conn, "Materials", :materials, to: material_path(@conn, :index), icon: "folder-open" %>
+    <%= primary_tab @conn, "Status", :status, to: status_path(@conn, :index), icon: "user" %>
+  </div>
+</div>

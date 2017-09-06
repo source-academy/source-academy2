@@ -1,0 +1,29 @@
+<%= form_for @changeset, @action, fn f -> %>
+  <%= if @changeset.action do %>
+    <div class="notification is-danger">
+      Oops, something went wrong! Please check the errors below.
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= label f, :student_id, class: "label" %>
+
+    <div class="select">
+      <%= select f, :student_id, Enum.map(@students, &({display_name(&1), &1.id})), class: "pt-input" %>
+    </div>
+
+    <%= error_tag f, :student_id %>
+  </div>
+
+  <div class="field">
+    <%= label f, :achievement_id, class: "label" %>
+    <div class="select">
+      <%= select f, :achievement_id, Enum.map(@achievements, &({&1.title, &1.id})), class: "pt-input" %>
+    </div>
+    <%= error_tag f, :achievement_id %>
+  </div>
+
+  <div class="field">
+    <%= submit "Submit", class: "button is-primary" %>
+  </div>
+<% end %>

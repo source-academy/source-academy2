@@ -1,0 +1,11 @@
+<%= form_for @changeset, admin_material_path(@conn, :create_category), fn f -> %>
+  <div class="row">
+    <div class="col-xs-6">
+      <%= input_group f, "Category Name", :name %>
+    </div>
+    <div class="col-xs">
+      <br />
+      <%= submit "Add Category", class: "pt-button pt-intent-success" %>
+    </div>
+  </div>
+<% end %>

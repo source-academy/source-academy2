@@ -1,0 +1,9 @@
+/_build
+/cover
+/deps
+/uploads
+/priv/static
+node_modules
+erl_crash.dump
+prod.secret.exs
+*.ez

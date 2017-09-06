@@ -1,0 +1,26 @@
+<%= if Enum.empty?(@materials) do %>
+  <%= non_ideal_state "No Materials",
+       "There are no materials uploaded under this category",
+       icon: "folder-open" %>
+<% else %>
+  <%= for material <- @materials do %>
+    <div class="row">
+      <div class="col-xs-4">
+        <strong>
+          <%= link material.title, to: display_material_url(material) %>
+        </strong>
+      </div>
+      <div class="col-xs-6">
+        <%= material.description %>
+      </div>
+      <div class="col-xs">
+        <div class="pt-button-group">
+          <%= link "Delete",
+                method: :delete,
+                to: admin_material_path(@conn, :delete, material.id),
+                class: "pt-button pt-intent-danger" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

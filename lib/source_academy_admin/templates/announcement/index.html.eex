@@ -1,0 +1,23 @@
+<%= admin_header @conn, "Announcements", fn -> %>
+  <%= link "New Announcement", to: admin_announcement_path(@conn, :new), class: "pt-button pt-intent-success" %>
+<% end %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="heading">Pinned Announcements</div>
+    <div class="body">
+      <%= render "table.html",
+              conn: @conn,
+              announcements: Enum.filter(@announcements, &(&1.is_pinned)) %>
+     </div>
+  </div>
+
+  <div class="sa-panel">
+    <div class="heading">Other Announcements</div>
+    <div class="body">
+      <%= render "table.html",
+              conn: @conn,
+              announcements: Enum.filter(@announcements, &(!&1.is_pinned)) %>
+     </div>
+  </div>
+</div>

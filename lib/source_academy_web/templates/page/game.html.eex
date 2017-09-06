@@ -1,0 +1,26 @@
+<script src="<%= static_path(@conn, "/lib/story-xml/jquery-1.11.3.min.js") %>"></script>
+<script src="<%= static_path(@conn, "/lib/story-xml/gsap/TweenLite.min.js") %>"></script>
+<script src="<%= static_path(@conn, "/lib/story-xml/pixi.min.js") %>"></script>
+<script src="<%= static_path(@conn, "/lib/story-xml/pixi-multistyle-text.min.js") %>"></script>
+<script src="<%= static_path(@conn, "/lib/story-xml/pixi-extra-filters.min.js") %>"></script>
+<script src="<%= static_path(@conn, "/lib/story-xml/aes.js") %>"></script>
+<style>
+  body {
+    background: black;
+  }
+</style>
+<%= link "Attempt",
+      id: "attempt",
+      style: "display:none",
+      method: "put",
+      to: assessment_path(@conn, :attempt, @assessment_id) %>
+<div id="game-display"
+     data-story="<%= @story %>"
+     data-attempted-all="<%= @attempted_all %>"
+     data-username="<%= @username %>">
+</div>
+<%= if Application.get_env(:source_academy, :environment) == :dev do %>
+  <script src="http://localhost:4001/static/js/story-xml.js"></script>
+<% else %>
+  <script src="<%= static_path(@conn, "/js/story-xml.js") %>"></script>
+<% end %>

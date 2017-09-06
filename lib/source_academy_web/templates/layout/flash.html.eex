@@ -1,0 +1,10 @@
+<%= if get_flash(@conn, :info) != nil do %>
+  <div id="sa-info-flash" style="display:none">
+    <%= get_flash(@conn, :info) %>
+  </div>
+<% end %>
+<%= if get_flash(@conn, :error) != nil do %>
+  <div id="sa-error-flash" style="display:none">
+    <%= get_flash(@conn, :error) %>
+  </div>
+<% end %>

@@ -1,0 +1,30 @@
+<table class="pt-table pt-bordered pt-striped pt-condensed">
+  <thead>
+    <th style="min-width:250px;">Expression</th>
+    <th style="min-width:250px;">Expected Value</th>
+    <th>Private</th>
+    <th>Action</th>
+  </thead>
+  <tbody>
+    <%= for test_case <- @programming_question.test_cases do %>
+      <% changeset = Enum.find(@test_case_changesets, &(&1.data.id == test_case.id)) %>
+      <% action = admin_assessment_programming_question_test_case_path(@conn, :update,
+          @assessment.id, @programming_question.id, changeset.data.id) %>
+      <%= render "programming_question/test_case.form.html",
+            conn: @conn,
+            action: action,
+            assessment: @assessment,
+            programming_question: @programming_question,
+            method: "put",
+            changeset: changeset %>
+    <% end %>
+
+    <% action = admin_assessment_programming_question_test_case_path(@conn, :create,
+          @assessment.id, @programming_question.id)  %>
+    <%= render "programming_question/test_case.form.html",
+          conn: @conn,
+          action: action,
+          method: "post",
+          changeset: @test_case_changeset %>
+  </tbody>
+</table>

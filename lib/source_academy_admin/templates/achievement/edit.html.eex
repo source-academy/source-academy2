@@ -1,0 +1,13 @@
+<%= admin_header @conn, "Edit Achievement" %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <%= render "form.html",
+            changeset: @changeset,
+            method: "put",
+            action: admin_achievement_path(@conn,
+              :update, @changeset.data.id) %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,26 @@
+<%= if Enum.empty?(@announcements) do %>
+  <%= non_ideal_state "No Announcements",
+        "No Announcements Posted Under this Category" %>
+<% else %>
+  <table class="pt-table pt-condensed" style="width:100%">
+    <thead>
+      <th style="min-width:200px">Title</th>
+      <th></th>
+    </thead>
+    <tbody>
+      <%= for announcement <- @announcements do %>
+      <tr>
+        <td><%= announcement.title %></td>
+        <td>
+          <div class="pt-button-group pt-minimal">
+            <%= link "Edit", to: admin_announcement_path(@conn, :edit, announcement.id),
+            class: "pt-button pt-intent-success" %>
+            <%= toggle_pin_link @conn, announcement %>
+            <%= toggle_publish_link @conn, announcement %>
+          </div>
+        </td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

@@ -1,0 +1,31 @@
+<% action = admin_assessment_programming_question_path(@conn,
+    :update, @assessment.id, @programming_question.id) %>
+<%= simple_tabs @tab, ["Content", "Header", "Template", "Solution", "Test Cases"], fn -> %>
+  <%= if @tab != "Test Cases" do %>
+    <%= form_for @changeset, action, [method: "put"], fn f -> %>
+      <%= hidden_input f, :redirect_to, value: current_path(@conn) %>
+      <%= case @tab do %>
+        <% "Content" -> %>
+          <%= input_group f, "Content", :content, type: :richtext, rows: 40 %>
+        <% "Header" -> %>
+          <%= input_group f, "Header", :solution_header,
+            type: :code_js, rows: 40 %>
+        <% "Template" -> %>
+          <%= input_group f, "Template", :solution_template,
+              type: :code_js, rows: 40 %>
+        <% "Solution" -> %>
+          <%= input_group f, "Solution", :solution,
+              type: :code_js, rows: 40 %>
+      <% end %>
+      <hr />
+      <%= submit "Save", class: "pt-button pt-intent-success" %>
+    <% end %>
+  <% else %>
+    <%= render "programming_question/test_case.table.html",
+          conn: @conn,
+          assessment: @assessment,
+          programming_question: @programming_question,
+          test_case_changeset: @test_case_changeset,
+          test_case_changesets: @test_case_changesets %>
+  <% end %>
+<% end %>

@@ -1,0 +1,64 @@
+<style>
+  body {
+    background: url("/images/auth_bg.png");
+    background-size: cover;
+  }
+</style>
+<div class="sa-auth">
+  <div class="content">
+    <%= form_for @changeset, @action, fn f -> %>
+      <h5 class="heading">
+        Registration Code
+        <small>Given During Lecture</small>
+      </h5>
+      <div class="pt-input-group pt-large">
+        <%= text_input f, :registration_code,
+            placeholder: "Registration Code",
+            class: "pt-input" %>
+        <%= error_tag f, :registration_code %>
+      </div>
+      <h5 class="heading">
+        Particulars
+        <small>Name must be the same as IVLE</small>
+      </h5>
+      <div class="pt-input-group pt-large">
+        <%= text_input f, :first_name,
+            placeholder: "First Name",
+            class: "pt-input" %>
+        <%= error_tag f, :first_name %>
+      </div>
+
+      <div class="pt-input-group pt-large">
+        <%= text_input f, :last_name,
+            placeholder: "Last Name (Optional)",
+            class: "pt-input" %>
+        <%= error_tag f, :last_name %>
+      </div>
+
+      <div class="pt-input-group pt-large">
+        <%= email_input f, :email,
+            placeholder: "NUSNET Email",
+            class: "pt-input" %>
+        <%= error_tag f, :email %>
+      </div>
+
+      <h5 class="heading">Password</h5>
+      <div class="pt-input-group pt-large">
+        <%= password_input f, :password,
+              placeholder: "Password",
+              class: "pt-input" %>
+        <%= error_tag f, :password %>
+      </div>
+
+      <div class="pt-input-group pt-large">
+        <%= password_input f, :password_confirmation,
+                placeholder: "Confirm Password",
+                class: "pt-input" %>
+        <%= error_tag f, :password_confirmation %>
+      </div>
+      <%= submit "Sign Up", class: "pt-large pt-button pt-intent-success" %>
+      <hr />
+      Already have an account? <%= link "Sign In", to: auth_path(@conn, :login) %>
+    <% end %>
+  </div>
+</div>

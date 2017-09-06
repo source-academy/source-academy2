@@ -1,0 +1,14 @@
+<%= admin_header @conn,
+  "Pending Gradings (#{Enum.count(@submissions)})" %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <%= simple_tabs @active_tab, ["Mine", "All"], fn -> %>
+        <%= render AssessmentView, "submission/table.html",
+              conn: @conn,
+              submissions: @submissions %>
+      <% end %>
+    </div>
+  </div>
+</div>

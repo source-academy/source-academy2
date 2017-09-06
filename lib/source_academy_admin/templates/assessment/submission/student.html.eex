@@ -1,0 +1,24 @@
+<table class="pt-table pt-bordered" style="width:100%">
+  <thead>
+    <tr>
+      <th style="width:250px;">Name</th>
+      <th style="width:200px;"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for student <- @students do %>
+      <tr>
+        <td>
+          <%= display_name(student) %>
+          </td>
+        <td>
+          <div class="pt-button-group">
+              <%= link "Send E-Mail",
+                    class: "pt-button pt-intent-primary",
+                    to: "mailto:" <> student.user.email  %>
+          </div>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

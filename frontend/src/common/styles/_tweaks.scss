@@ -1,0 +1,47 @@
+/* This stylesheet tweaks the vendor styles */
+.pt-input-group {
+  margin-bottom: 20px;
+}
+
+.pt-input-group .pt-input:not(:first-child) {
+  padding-left: 5px;
+}
+
+.pt-callout {
+  margin-bottom: 10px;
+}
+
+.container {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+.pt-input-group {
+  margin-bottom: 10px;
+}
+
+.pt-button {
+  box-shadow: none !important;
+  font-weight: 500;
+  font-family: 'Nunito', sans-serif;
+}
+
+.pt-navbar {
+  background: transparent;
+  text-transform: uppercase;
+
+  @media(max-width: 768px) {
+    .pt-button span {
+      display: none
+    }
+  }
+}
+
+.pt-navbar.pt-dark {
+  box-shadow: none !important;
+  background: linear-gradient(45deg, $sa-dark-blue, #192C39);
+}
+
+pre.CodeMirror-line {
+  box-shadow: none;
+}

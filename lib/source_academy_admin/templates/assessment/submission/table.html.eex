@@ -1,0 +1,54 @@
+<%= if Enum.empty?(@submissions) do %>
+  <%= non_ideal_state "No Submissions",
+        "There are no submissions",
+        icon: "folder-open" %>
+<% else %>
+  <table class="pt-table pt-bordered" style="width:100%">
+    <thead>
+      <%= if !assigns[:assessment] do %>
+        <th style="width:120px;">Assessment</th>
+      <% end %>
+      <th style="width:300px;">Student</th>
+      <th style="width:60px;">Status</th>
+      <th></th>
+    </thead>
+    <tbody>
+      <%= for submission <- @submissions do %>
+          <tr>
+            <%= if !assigns[:assessment] do %>
+              <td><%= display_assessment_name(submission.assessment) %></td>
+            <% end %>
+            <td><%= display_name(submission.student) %></td>
+            <td><%= submission.status %></td>
+            <td>
+              <% assessment_id =
+                  if assigns[:assessment] do
+                    @assessment.id
+                  else
+                    submission.assessment.id
+                  end %>
+              <%= link "View",
+                    to: assessment_path(@conn, :question, assessment_id, 1, student: submission.student.id),
+                    class: "pt-button pt-intent-primary",
+                    target: "_blank" %>
+              <%= case submission.status do %>
+                <% :submitted -> %>
+                  <%= link "Unsubmit",
+                        method: "put",
+                        to: admin_assessment_unsubmit_path(@conn, :unsubmit, assessment_id, submission.id),
+                        class: "pt-button pt-intent-danger" %>
+                  <%= link "Grade",
+                        to: admin_assessment_grading_path(@conn, :edit_grade, assessment_id, submission.id),
+                        class: "pt-button pt-intent-success" %>
+                <% :graded -> %>
+                  <%= link "Edit Grade",
+                        to: admin_assessment_grading_path(@conn, :edit_grade, assessment_id, submission.id),
+                        class: "pt-button pt-intent-warning" %>
+                <% _ -> %>
+              <% end %>
+            </td>
+          </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

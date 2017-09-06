@@ -1,0 +1,15 @@
+<%= if Application.get_env(:source_academy, :environment) == :dev do %>
+  <script src="http://localhost:4001/static/js/workspace.js"></script>
+<% else %>
+  <script src="<%= static_path(@conn, "/js/workspace.js") %>"></script>
+<% end %>
+
+<textarea class="sa-solution" style="display:none;"></textarea>
+<div class="sa-workspace"></div>
+
+<script>
+initializeWorkspace(
+  document.querySelector(".sa-solution"),
+  true
+)
+</script>

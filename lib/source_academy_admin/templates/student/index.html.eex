@@ -1,0 +1,13 @@
+<%= admin_header @conn,
+  @active_tab
+  <> "s ("
+  <> Integer.to_string(Enum.count(@students))
+  <> ")" %>
+
+<div class="sa-panel">
+  <div class="body">
+    <%= simple_tabs @active_tab, ["Student", "Phantom"], fn -> %>
+      <%= render "table.html", conn: @conn, students: @students  %>
+    <% end %>
+  </div>
+</div>

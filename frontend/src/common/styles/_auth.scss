@@ -1,0 +1,51 @@
+
+.sa-auth {
+  .header {
+    margin: 0 auto;
+    img {
+      width: 100%;
+    }
+  }
+  .content {
+    padding: 25px;
+  }
+
+  padding: 0;
+  background: $sa-dark-blue;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  max-width: 500px;
+  margin: 0 auto;
+  margin-bottom: 50px;
+
+  color: lighten($sa-light-blue, 10%);
+
+  h1,h2,h3,h4,h5,h6 {
+    color: lighten($sa-light-blue, 10%);
+  }
+
+  .pt-button {
+    width: 100%;
+    background-color: darken($sa-light-blue, 20%);
+  }
+
+  .pt-button:hover {
+    background-color: darken($sa-light-blue, 30%);
+  }
+
+  a {
+    color: darken($sa-light-blue, 10%);
+    font-weight: 700;
+  }
+
+  .heading, .pt-input-group {
+    margin-bottom: 25px;
+  }
+}
+
+
+.sa-unauthorized {
+  margin: 0 auto;
+  max-width: 500px;
+  margin-top: 10vh;
+}

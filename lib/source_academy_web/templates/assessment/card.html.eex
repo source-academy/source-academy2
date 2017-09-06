@@ -1,0 +1,53 @@
+<div class="sa-assessment-card row">
+  <div class="cover">
+    <%= if @assessment.cover_url do %>
+      <img src="<%= display_cover_url(@assessment) %>"></img>
+    <% end %>
+  </div>
+  <div class="description col-xs">
+    <h4><%= @assessment.title %></h4>
+    <h6 class="order">
+      <%= display_assessment_name(@assessment) %>
+      <span class="pt-icon-standard pt-icon-dot"></span>
+      <%= @assessment.max_xp %> XP
+    </h6>
+    <div class="pt-text">
+      <%= @assessment.description %>
+    </div>
+    <div class="row controls">
+      <div class="due-at col-xs-6 col-md-8">
+        <span class="pt-icon-standard pt-icon-time"></span>
+        <span>
+          Due <%= display_due_date(@assessment.close_at) %>
+        </span>
+      </div>
+      <div class="col-xs">
+        <%= if @submission == nil do %>
+          <%= if @assessment.type == :path do %>
+            <%= link to: assessment_path(@conn, :attempt, @assessment.id),
+                  method: "put",
+                  class: "pt-button pt-minimal pt-large pt-intent-success" do %>
+                <span>Attempt</span>
+            <% end %>
+          <% else %>
+            <%= link to: assessment_path(@conn, :attempt, @assessment.id),
+                  method: "put",
+                  data: [
+                    confirm: "Attempting from here will skip the storyline. Continue?"
+                  ],
+                  class: "pt-button pt-minimal pt-large pt-intent-success" do %>
+                <span>Skip Story & Attempt</span>
+            <% end %>
+          <% end %>
+        <% else %>
+           <%= link to: assessment_path(@conn, :attempt, @assessment.id),
+                method: "put",
+                class: "pt-button pt-minimal pt-large pt-intent-success" do %>
+              <span>View</span>
+          <% end %>
+        <% end %>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

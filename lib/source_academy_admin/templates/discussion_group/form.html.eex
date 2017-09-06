@@ -1,0 +1,11 @@
+<%= form_for @changeset, @action, [class: "row"], fn f -> %>
+  <div class="col-xs-12">
+    <%= hidden_input f, :user_id, value: @staff.id %>
+    <div class="pt-select">
+      <%= select f, :student_id,
+            Enum.map(@students, &({display_name(&1), &1.id})),
+            style: "width:100%;" %>
+    </div>
+    <%= submit "Add to DG", class: "pt-button pt-intent-success" %>
+  </div>
+<% end %>

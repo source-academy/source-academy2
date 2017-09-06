@@ -1,0 +1,8 @@
+<div class="sa-admin-header row pt-dark">
+  <div class="heading col-xs-6">
+    <%= @title %>
+  </div>
+  <div class="controls col-xs end-xs">
+    <%= @controls.() %>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<%= admin_header @conn, "Achievements", fn -> %>
+  <%= link "Create Achievement", to: admin_achievement_path(@conn, :new), class: "pt-button pt-intent-success" %>
+<% end %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <%= for achievement <- Enum.sort_by(@achievements, &(&1.display_order)) do %>
+        <div class="row">
+          <div class="col-xs-4">
+            <%= link "^", to: admin_achievement_path(@conn, :move_up, achievement), class: "pt-button" %>
+            <%= link "v", to: admin_achievement_path(@conn, :move_down, achievement), class: "pt-button" %>
+            <%= achievement.title %>
+          </div>
+          <div class="col-xs-6">
+            <small><%= achievement.description %></small>
+          </div>
+          <div class="col-xs pt-button-group pt-small">
+            <%= link "Edit",
+                  to: admin_achievement_path(@conn, :edit, achievement),
+                  class: "pt-button pt-intent-primary" %>
+            <%= link "Delete", to: admin_achievement_path(@conn, :delete, achievement),
+                  method: :delete,
+                  data: [confirm: ("Are you sure you want to delete " <> achievement.title <> " ?")],
+                  class: "pt-button pt-intent-danger" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+<div class="pt-non-ideal-state">
+  <%= if @icon do %>
+    <div class="pt-non-ideal-state-visual pt-non-ideal-state-icon">
+      <span class="pt-icon pt-icon-<%= @icon %>"></span>
+    </div>
+  <% end %>
+  <h4 class="pt-non-ideal-state-title">
+    <%= @title %>
+  </h4>
+  <div class="pt-non-ideal-state-description">
+    <%= @description %>
+  </div>
+</div>

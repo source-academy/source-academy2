@@ -1,0 +1,20 @@
+<%= render "tabs.html", conn: @conn %>
+<div class="sa-pinned-announcements">
+  <div class="row">
+    <div class="col-xs-12">
+      <%= for announcement <- @pinned_announcements do %>
+        <%= render SourceAcademyWeb.AnnouncementView,
+            "card.html", announcement: announcement %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-xs-12">
+    <%= for announcement <- @unpinned_announcements do %>
+      <%= render SourceAcademyWeb.AnnouncementView,
+          "card.html", announcement: announcement %>
+    <% end %>
+  </div>
+</div>

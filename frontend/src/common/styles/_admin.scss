@@ -1,0 +1,118 @@
+
+.sa-panel {
+  background: $light-gray2;
+  margin-top: 10px;
+  padding-top: 1px;
+  padding-bottom: 10px;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+
+  .heading {
+    padding: 10px 15px;
+    background: $dark-gray4;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    color: white;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+  }
+
+  .body {
+    display: block;
+    margin: 10px 20px;
+    padding: 20px;
+    background: white;
+    box-shadow: 1px 1px 1px 0.5px $sa-gray2;
+  }
+
+  .distinguish {
+    background: $sa-gray5;
+    padding: 20px;
+    margin: 10px 20px;
+  }
+}
+
+.sa-logo-container {
+  max-width: 500px;
+  margin: auto;
+}
+
+.sa-logo {
+  width: 100%;
+}
+
+.sa-admin-navbar {
+  position: fixed;
+  top: 50px;
+  left: 0px;
+  width: 100%;
+  z-index: 1;
+  background: $sa-gray3;
+
+  a {
+    color: $sa-dark-blue;
+    font-weight: 500;
+    text-transform: uppercase;
+    padding: 5px;
+  }
+
+  .first-row, .second-row {
+    padding: 0px 20px;
+  }
+
+  .first-row a {
+    font-size: 1.1em;
+  }
+
+  .second-row a {
+    font-size: 0.85em;
+  }
+
+  .second-row {
+    background: $sa-gray4;
+  }
+
+  a.pt-button::after {
+    display: none !important;
+  }
+}
+
+.sa-admin {
+  padding-top: 140px;
+  padding-bottom: 50px;
+}
+
+.sa-admin-header {
+  margin: 0;
+  background: white;
+  padding: 20px;
+  border-top: 2px solid $sa-dark-blue;
+
+  .heading {
+    font-size: 1.3em;
+    font-weight: 500;
+    color: $sa-dark-blue;
+  }
+
+  .pt-button.pt-intent-success {
+    background: $sa-dark-blue;
+  }
+
+  .pt-button.pt-intent-success:hover {
+    background: lighten($sa-dark-blue, 30%);
+  }
+}
+
+input[type="file"] {
+  padding: 10px;
+  background: $sa-gray5;
+  display: block;
+}
+
+.sa-error {
+  color: $red2;
+}
+
+.sa-admin-content {
+  margin: 0;
+}

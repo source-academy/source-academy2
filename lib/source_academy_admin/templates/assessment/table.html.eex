@@ -1,0 +1,51 @@
+<%= if Enum.empty?(@assessments) do %>
+  <%= non_ideal_state "No Assessments",
+        "There are no assessments under this category",
+        icon: "folder-open" %>
+<% else %>
+  <table class="pt-table pt-bordered" style="width:100%">
+    <thead>
+      <th style="width:150px;">Name</th>
+      <th style="width:50px;">Status</th>
+      <th style="width:200px;">Open-Close</th>
+      <th></th>
+    </thead>
+    <tbody>
+      <% assessments = @assessments
+          |> Enum.sort_by(&(&1.name))
+          |> Enum.reverse %>
+      <%= for assessment <- assessments do %>
+          <tr>
+            <td>
+              <b><%= display_assessment_name(assessment) %></b>
+            </td>
+            <td>
+              <%= if assessment.is_published, do: "Published", else: "" %>
+            </td>
+            <td>
+              <%= display_datetime(assessment.open_at) %> -
+              <%= display_datetime(assessment.close_at) %>
+            </td>
+            <td class="pt-small">
+              <%= if !assessment.is_published do %>
+                <%= link "Publish", class: "pt-button pt-intent-primary",
+                        method: "put",
+                        to: admin_assessment_publish_path(@conn, :publish,
+                          assessment.id) %>
+              <% end %>
+              <%= link "Edit", class: "pt-button pt-intent-success", to: admin_assessment_path(@conn, :edit, assessment.id) %>
+              <%= link "Questions", class: "pt-button pt-intent-primary", to: admin_assessment_path(@conn, :show, assessment.id) %>
+              <%= link "Attempt",
+                    class: "pt-button pt-intent-primary",
+                    method: "put",
+                    to: assessment_path(@conn, :attempt, assessment.id) %>
+              <%= link "Submissions",
+                    class: "pt-button pt-intent-warning",
+                    to: admin_assessment_submissions_path(@conn, :submissions,
+                      assessment.id) %>
+            </td>
+          </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

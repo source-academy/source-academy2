@@ -1,0 +1,7 @@
+<div class="sa-panel sa-unauthorized">
+  <div class="body">
+    <h3>Unauthenticated</h3>
+    <hr />
+    You must be logged in to view this page
+  </div>
+</div>

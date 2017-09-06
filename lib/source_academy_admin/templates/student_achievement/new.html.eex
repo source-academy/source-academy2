@@ -1,0 +1,6 @@
+<h2 class="title">Grant achievement</h2>
+
+<%= render "form.html", changeset: @changeset,
+                        action: admin_student_achievement_path(@conn, :create),
+                        students: @students,
+                        achievements: @achievements %>

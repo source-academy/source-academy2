@@ -1,0 +1,163 @@
+{
+  "name": "source-academy-assets",
+  "version": "2.0.0",
+  "private": true,
+  "dependencies": {
+    "@blueprintjs/core": "^1.23.1",
+    "@blueprintjs/datetime": "^1.19.0",
+    "@types/ace": "0.0.35",
+    "@types/acorn": "^4.0.2",
+    "@types/axios": "^0.14.0",
+    "@types/clipboard": "^1.5.34",
+    "@types/common-tags": "^1.2.5",
+    "@types/deepmerge": "^1.3.1",
+    "@types/estree": "0.0.37",
+    "@types/history": "^4.6.0",
+    "@types/invariant": "^2.2.28",
+    "@types/lz-string": "^1.3.32",
+    "@types/marked": "^0.3.0",
+    "@types/moment-timezone": "^0.2.34",
+    "@types/query-string": "^5.0.0",
+    "@types/react": "^15.0.39",
+    "@types/react-dom": "^15.5.1",
+    "@types/react-redux": "^5.0.1",
+    "@types/simplemde": "^1.11.7",
+    "acorn": "^5.1.1",
+    "astring": "^1.0.5",
+    "axios": "^0.16.2",
+    "ayu-ace": "^2.0.3",
+    "brace": "^0.10.0",
+    "clipboard": "^1.7.1",
+    "common-tags": "^1.4.0",
+    "deepmerge": "^1.5.1",
+    "eventemitter2": "^4.1.2",
+    "flexboxgrid": "^6.3.1",
+    "history": "^4.6.3",
+    "immutable": "^3.8.1",
+    "invariant": "^2.2.2",
+    "lz-string": "^1.4.4",
+    "marked": "^0.3.6",
+    "moment-timezone": "^0.5.13",
+    "normalize.css": "^7.0.0",
+    "phoenix": "file:../deps/phoenix",
+    "phoenix_html": "file:../deps/phoenix_html",
+    "query-string": "^5.0.0",
+    "react": "^15.6.1",
+    "react-addons-css-transition-group": "^15.6.0",
+    "react-dom": "^15.6.1",
+    "react-redux": "^5.0.6",
+    "react-redux-typescript": "^2.3.0",
+    "redux": "^3.7.2",
+    "redux-saga": "^0.15.6",
+    "simplemde": "^1.11.2"
+  },
+  "devDependencies": {
+    "@types/debug": "0.0.30",
+    "@types/jest": "^20.0.7",
+    "@types/node": "^8.0.23",
+    "app-root-path": "^2.0.1",
+    "autoprefixer": "7.1.0",
+    "babel-loader": "^7.1.1",
+    "babel-preset-react-app": "^3.0.2",
+    "babel-runtime": "^6.26.0",
+    "bourbon": "^4.3.4",
+    "cache-loader": "^1.0.3",
+    "case-sensitive-paths-webpack-plugin": "2.0.0",
+    "chalk": "1.1.3",
+    "cli-highlight": "1.1.4",
+    "coveralls": "^2.13.1",
+    "css-loader": "0.28.1",
+    "debug": "^3.0.0",
+    "dotenv": "4.0.0",
+    "extract-text-webpack-plugin": "2.1.0",
+    "file-loader": "0.11.1",
+    "fork-ts-checker-webpack-plugin": "^0.2.7",
+    "fs-extra": "3.0.1",
+    "happypack": "^4.0.0-beta.2",
+    "html-webpack-plugin": "2.28.0",
+    "husky": "^0.14.3",
+    "jest": "20.0.3",
+    "lint-staged": "^4.0.3",
+    "node-sass": "^4.5.3",
+    "object-assign": "4.1.1",
+    "postcss-flexbugs-fixes": "3.0.0",
+    "postcss-loader": "2.0.5",
+    "prettier": "^1.5.3",
+    "promise": "7.1.1",
+    "react-dev-utils": "^2.0.1",
+    "react-error-overlay": "^1.0.6",
+    "sass-loader": "^6.0.6",
+    "source-map-loader": "^0.2.1",
+    "style-loader": "0.17.0",
+    "stylelint": "^8.0.0",
+    "thread-loader": "^1.1.0",
+    "ts-loader": "^2.2.1",
+    "tslint": "^5.2.0",
+    "tslint-loader": "^3.5.3",
+    "tslint-react": "^3.0.0",
+    "typescript": "^2.4.2",
+    "url-loader": "0.5.8",
+    "webpack": "3.0.0",
+    "webpack-dev-server": "2.4.5",
+    "webpack-parallel-uglify-plugin": "^1.0.0",
+    "whatwg-fetch": "2.0.3"
+  },
+  "scripts": {
+    "precommit": "lint-staged",
+    "prepush": "npm run lint",
+    "start": "node scripts/start.js",
+    "lint": "tslint -c tslint.json --type-check --project tsconfig.json ./src/**/*.ts",
+    "build": "PUBLIC_URL=$HOST node scripts/build.js",
+    "test": "node scripts/test.js --env=jsdom && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "dev": "jest --verbose --watch"
+  },
+  "jest": {
+    "mapCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}"
+    ],
+    "setupFiles": [
+      "<rootDir>/config/polyfills.js"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.ts?(x)",
+      "<rootDir>/src/**/?(*.)(spec|test).ts?(x)"
+    ],
+    "testEnvironment": "node",
+    "testURL": "http://localhost",
+    "transform": {
+      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
+      "^.+\\.tsx?$": "<rootDir>/config/jest/typescriptTransform.js",
+      "^(?!.*\\.(css|json)$)": "<rootDir>/config/jest/fileTransform.js"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$"
+    ],
+    "moduleNameMapper": {
+      "^react-native$": "react-native-web"
+    }
+  },
+  "lint-staged": {
+    "gitDir": "..",
+    "linters": {
+      "src/**/*.js": [
+        "prettier --semi --single-quote --write",
+        "git add"
+      ],
+      "src/**/*.ts": [
+        "prettier --parser typescript --no-semi --single-quote --write",
+        "git add"
+      ]
+    }
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  }
+}

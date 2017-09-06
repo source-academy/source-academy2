@@ -1,0 +1,10 @@
+<div class="sa-secondary-tabs">
+  <div class="container">
+    <%= secondary_tab @conn, "Feed", :feed,
+          to: inbox_path(@conn, :feed), icon: "control" %>
+    <%= secondary_tab @conn, "Announcements", :announcements,
+          to: inbox_path(@conn, :announcements), icon: "feed" %>
+    <%= secondary_tab @conn, "Due Soon", :due_soon,
+          to: inbox_path(@conn, :due_soon), icon: "time" %>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="sa-secondary-tabs">
+  <div class="container">
+    <%= secondary_tab @conn, "Missions", :mission,
+          icon: "book",
+          to: journal_path(@conn, :index, filter: "mission") %>
+    <%= secondary_tab @conn, "Sidequests", :sidequest,
+          icon: "book",
+          to: journal_path(@conn, :index, filter: "sidequest") %>
+    <%= secondary_tab @conn, "Paths", :path,
+          icon: "predictive-analysis",
+          to: journal_path(@conn, :index, filter: "path") %>
+    <%= secondary_tab @conn, "Contests", :contest,
+          icon: "comparison",
+          to: journal_path(@conn, :index, filter: "contest") %>
+  </div>
+</div>

@@ -1,0 +1,18 @@
+<table class="pt-table pt-bordered" style="width:100%">
+  <thead>
+    <th style="width:100px">Timestamp</th>
+    <th style="width:200px">Given By</th>
+    <th style="width:100px">Amount</th>
+    <th>Reason</th>
+  </thead>
+  <tbody>
+    <%= for xp_history <- @xp_history do %>
+      <tr>
+        <td><%= display_datetime(xp_history.inserted_at) %></td>
+        <td><%= display_name(xp_history.giver) %></td>
+        <td><%= xp_history.amount %></td>
+        <td><%= xp_history.reason %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

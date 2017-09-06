@@ -1,0 +1,12 @@
+<%= admin_header @conn, "New Library" %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <%= render "form.html",
+            changeset: @changeset,
+            method: "post",
+            action: admin_library_path(@conn, :create) %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+<%= form_for @changeset, @action, [method: @method], fn f -> %>
+  <%= input_group f, "Title", :title %>
+  <%= input_group f, "JSON",  :raw_json, type: :code_json, rows: 40 %>
+  <%= submit "Submit", class: "pt-button pt-intent-primary" %>
+<% end %>

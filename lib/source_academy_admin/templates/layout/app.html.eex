@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Administration Panel - Source Academy</title>
+    <%= if Application.get_env(:source_academy, :environment) == :dev do %>
+      <script src="http://localhost:4001/static/js/common.js"></script>
+    <% else %>
+      <link rel="stylesheet" href="<%= static_path(@conn, "/css/common.css") %>">
+      <script src="<%= static_path(@conn, "/js/common.js") %>"></script>
+    <% end %>
+  </head>
+  <body>
+    <%= navbar @conn, assigns[:current_user] %>
+    <%= render "navbar.html", conn: @conn, current_user: assigns[:current_user] %>
+    <main role="main" class="container sa-admin">
+      <%= render "flash.html", conn: @conn %>
+      <%= render @view_module, @view_template, assigns %>
+    </main>
+  </body>
+</html>

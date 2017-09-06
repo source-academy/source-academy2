@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="theme-color" content="#000000">
+    <title>Source Academy</title>
+    <%= if Application.get_env(:source_academy, :environment) == :dev do %>
+      <script src="http://localhost:4001/static/js/common.js"></script>
+    <% else %>
+      <link rel="stylesheet" href="<%= static_path(@conn, "/css/common.css") %>">
+      <script src="<%= static_path(@conn, "/js/common.js") %>"></script>
+    <% end %>
+  </head>
+  <body>
+    <%= render "navbar.html", conn: @conn, current_user: assigns[:current_user] %>
+    <div class="sa-main">
+      <%= if assigns[:current_user] && assigns[:primary_tab] do %>
+        <%= render "tabs.html", conn: @conn %>
+      <% end %>
+      <%= if assigns[:primary_tab] do %>
+      <div class="sa-content">
+      <% else %>
+      <div class="sa-content is-paddingless">
+      <% end %>
+        <%= render "flash.html", conn: @conn %>
+        <%= render @view_module, @view_template, assigns %>
+      </div>
+    </div>
+  </body>
+</html>

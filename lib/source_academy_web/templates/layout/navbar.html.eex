@@ -1,0 +1,37 @@
+<header class="header">
+  <div class="container">
+    <nav role="navigation" class="pt-navbar pt-dark">
+      <div class="pt-navbar-group pt-align-left">
+        <div class="pt-navbar-heading">
+          <img src="/images/logo.gif" style="height:30px"></img>
+        </div>
+        <%= if @current_user do %>
+          <%= navbar_tab @conn, "Game", :game,
+                to: page_path(@conn, :game),
+                icon: "globe" %>
+          <%= navbar_tab @conn, "Device", :device,
+                to: inbox_path(@conn, :index),
+                icon: "mobile-phone" %>
+          <%= if @current_user.role != "student" do %>
+            <%= navbar_tab @conn, "Admin", :admin,
+                  to: admin_page_path(@conn, :index),
+                  icon: "dashboard" %>
+          <% end %>
+        <% else %>
+           Source Academy
+        <% end %>
+      </div>
+      <div class="pt-navbar-group pt-align-right">
+        <%= navbar_tab @conn, "Playground", :playground,
+              to: playground_path(@conn, :index),
+              icon: "code-block" %>
+        <%= if @current_user do %>
+          <%= link "Logout", class: "pt-button pt-minimal pt-intent-danger", to: auth_path(@conn, :logout) %>
+        <% else %>
+          <%= link "Sign Up", class: "pt-button pt-minimal pt-intent-primary", to: auth_path(@conn, :signup) %>
+          <%= link "Login", class: "pt-button pt-minimal pt-intent-success", to: auth_path(@conn, :login) %>
+        <% end %>
+      </div>
+    </nav>
+  </div>
+</header>

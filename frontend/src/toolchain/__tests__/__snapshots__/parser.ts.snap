@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`elaboration 1`] = `"Every statement must be terminated by a semicolon."`;
+
+exports[`elaboration 2`] = `"You are trying to use Assignment, which is not yet allowed (yet)."`;
+
+exports[`elaboration 3`] = `"Please remove the trailing comma"`;
+
+exports[`explanation 1`] = `"Missing semicolon at the end of statement"`;
+
+exports[`explanation 2`] = `"Assignment is not allowed"`;
+
+exports[`explanation 3`] = `"Trailing comma"`;

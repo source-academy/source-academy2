@@ -1,0 +1,40 @@
+<%= if Enum.empty?(@questions) do %>
+  <%= non_ideal_state "No Questions",
+        "This assessment has no questions",
+        icon: "help" %>
+<% else %>
+  <table style="width:100%" class="pt-table pt-bordered">
+    <thead>
+      <th style="width:300px;">Title</th>
+      <th style="width:150px;">Type</th>
+      <th style="width:20px;">Weight</th>
+      <th>Action</th>
+    </thead>
+    <tbody>
+      <%= for question <- @questions do %>
+        <tr>
+          <td>
+            <%= question.title %>
+          </td>
+          <td>
+            <%= display_question_type(question) %>
+          </td>
+          <td>
+            <%= question.weight %>
+          </td>
+          <td>
+            <%= link "Edit",
+                  to: admin_assessment_question_path(
+                      @conn, :edit, @assessment.id, question.id),
+                  class: "pt-button pt-intent-primary" %>
+            <%= link "Delete",
+                  to: admin_assessment_question_path(
+                      @conn, :delete, @assessment.id, question.id),
+                  class: "pt-button pt-intent-danger",
+                  method: :delete %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

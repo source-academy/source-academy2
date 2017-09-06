@@ -1,0 +1,6 @@
+<% class = "pt-button pt-minimal " %>
+<% class = if @icon != nil, do: class <> "pt-icon-" <> @icon, else: class %>
+<% class = if @active_id == @id, do: class <> " pt-active", else: class %>
+<%= link [to: @action, class: class] do %>
+  <span><%= @label %></span>
+<% end %>

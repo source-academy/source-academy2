@@ -1,0 +1,65 @@
+  <div class="pt-input-group">
+    <label class="pt-label">
+      <%= if @label != "" do %>
+        <strong><%= @label %></strong>
+      <% end %>
+      <%= if @hint do %>
+        <span class="pt-text-muted">
+          <%= @hint %>
+        </span>
+      <% end %>
+      <span class="pt-text-muted">
+        <%= error_tag @form, @field %>
+      </span>
+      <%= case @type do %>
+        <% :select -> %>
+          <div class="pt-select">
+            <%= select @form, @field, @options %>
+          </div>
+        <% :file -> %>
+          <%= file_input @form, @field %>
+        <% :textarea -> %>
+          <%= textarea @form, @field, class: "pt-input", rows: @rows %>
+        <% :code_js -> %>
+          <%= textarea @form, @field, style: "display:none" %>
+          <% height = @rows * 10 %>
+          <div id="<%= input_id(@form, @field) %>"
+               style="height:<%= height %>px;margin-top:15px"></div>
+          <script>
+            sa.components.codeEditor(
+              document.querySelector(
+                "textarea#<%= input_id(@form, @field) %>"),
+              document.querySelector(
+                "div#<%= input_id(@form, @field) %>"),
+            )
+          </script>
+        <% :code_json -> %>
+          <%= textarea @form, @field, style: "display:none" %>
+          <% height = @rows * 10 %>
+          <div id="<%= input_id(@form, @field) %>"
+               style="height:<%= height %>px;margin-top:15px"></div>
+          <script>
+            sa.components.jsonEditor(
+              document.querySelector(
+                "textarea#<%= input_id(@form, @field) %>"),
+              document.querySelector(
+                "div#<%= input_id(@form, @field) %>"),
+            )
+          </script>
+        <% :richtext -> %>
+          <%= textarea @form, @field, class: "pt-input",
+              style: "margin-top:15px;", rows: @rows %>
+          <script>
+            sa.components.richTextEditor(
+              document.querySelector("textarea#<%= input_id(@form, @field) %>")
+            )
+          </script>
+        <% :password -> %>
+          <%= password_input @form, @field, class: "pt-input" %>
+        <% :email -> %>
+          <%= email_input @form, @field, class: "pt-input" %>
+        <% _ -> %>
+          <%= text_input @form, @field, class: "pt-input" %>
+      <% end %>
+    </label>
+  </div>

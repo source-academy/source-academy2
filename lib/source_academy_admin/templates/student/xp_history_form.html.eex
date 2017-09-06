@@ -1,0 +1,14 @@
+<%= form_for @xp_history_changeset,
+        admin_student_xp_history_path(@conn, :create_xp_history, @student.id), fn f -> %>
+  <div class="row">
+    <div class="col-xs-2 pt-input-group">
+      <%= text_input f, :amount, class: "pt-input", placeholder: "Amount" %>
+    </div>
+    <div class="col-xs-8 pt-input-group">
+      <%= text_input f, :reason, class: "pt-input", placeholder: "Reason (e.g DG XP Week 1)" %>
+    </div>
+    <div class="col-xs pt-input-group">
+      <%= submit "Give XP", class: "pt-button pt-intent-success" %>
+    </div>
+  </div>
+<% end %>

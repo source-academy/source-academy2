@@ -1,0 +1,18 @@
+<div class="pt-input-group">
+  <label class="pt-label">
+    <strong><%= @label %></strong>
+    <br />
+    <div id="<%= @start_field %>" class="row"></div>
+    <%= hidden_input @form, @start_field, id: @start_field %>
+    <%= hidden_input @form, @end_field, id: @end_field %>
+    <%= error_tag @form, @start_field %>
+    <%= error_tag @form, @end_field %>
+  </label>
+  <script>
+    sa.components.dateRangePicker(
+      document.querySelector("div#<%= @start_field %>"),
+      document.querySelector("input#<%= @start_field %>"),
+      document.querySelector("input#<%= @end_field %>")
+    )
+  </script>
+</div>

@@ -1,0 +1,11 @@
+<%= admin_header @conn, "New Announcement" %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <%= render "form.html",
+            changeset: @changeset,
+            action: admin_announcement_path(@conn, :create) %>
+    </div>
+  </div>
+</div>

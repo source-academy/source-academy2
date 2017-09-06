@@ -1,0 +1,13 @@
+<%= admin_header @conn, "Create Assessment" %>
+
+<div class="sa-admin-content">
+  <%= if @changeset.action do %>
+    <div class="pt-callout pt-intent-danger">
+      Please fix the following problem
+    </div>
+  <% end %>
+  <%= render "form.html",
+        changeset: @changeset,
+        method: "post",
+        action: admin_assessment_path(@conn, :create) %>
+</div>

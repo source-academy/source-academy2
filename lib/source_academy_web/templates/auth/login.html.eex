@@ -1,0 +1,31 @@
+<style>
+  body {
+    background: url("/images/auth_bg.png");
+    background-size: cover;
+  }
+</style>
+<div class="sa-auth">
+  <div class="content">
+    <h2>Login to Source Academy</h2>
+    <hr></hr>
+    <%= form_for @changeset, @action, fn f -> %>
+      <div class="pt-input-group">
+        <%= email_input f, :uid,
+              placeholder: "Email Address",
+              class: "pt-input pt-large" %>
+        <%= error_tag f, :uid %>
+      </div>
+      <div class="pt-input-group">
+        <%= password_input f, :password,
+                placeholder: "Password",
+                class: "pt-input pt-large" %>
+        <%= error_tag f, :password %>
+      </div>
+      <%= submit "Login", class: "signin-button pt-button pt-large pt-intent-success" %>
+      <hr />
+      <div class="row">
+        First time here?&nbsp;<%= link "Sign Up", to: auth_path(@conn, :signup) %>
+      </div>
+  </div>
+  <% end %>
+</div>

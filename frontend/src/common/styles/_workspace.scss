@@ -1,0 +1,212 @@
+.sa-workspace {
+  height: 100%;
+  background: $dark-gray1;
+
+  .editor-container {
+    height: 86vh;
+    padding-top: 20px;
+    padding-left: 20px;
+    padding-right: 0px;
+    padding-bottom: 20px;
+    background: $dark-gray1;
+  }
+  .col-xs-6, .col-xs {
+    padding: 0;
+  }
+  .editor {
+    height: 100%;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
+  .body {
+    margin-top: $pt-navbar-height;
+  }
+  .toolbar {
+    padding: 0px 25px;
+    margin-top: $pt-navbar-height;
+    background: $light-gray3;
+  }
+  .side {
+    position: relative;
+    background: $dark-gray1;
+    .controls {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      text-align: right;
+    }
+  }
+  .side .tabs {
+    padding: 10px 25px;
+    .pt-button {
+      text-transform: uppercase;
+      font-weight: 700 !important;
+      font-size: 0.8em;
+    }
+  }
+  .canvas-container {
+    padding: 15px;
+  }
+  .interpreter {
+    overflow-y: auto;
+    padding: 0px 20px;
+    max-width: 720px;
+    margin: 0 auto;
+    height: 75vh;
+
+    .input, .output {
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .input {
+      height: 100px;
+    }
+
+    .output pre {
+      color: white;
+      background: $dark-gray2;
+    }
+
+    .output pre code {
+      font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    }
+
+    span.error {
+      display: block;
+    }
+
+    .indicator {
+      position: absolute;
+      left: -5px;
+      top: 12px;
+      color: white;
+    }
+
+    .output .indicator {
+      color: $gray2;
+    }
+
+    pre.log {
+      color: $gold3;
+      background: $dark-gray3;
+    }
+
+    pre.value {
+      color: $gray4;
+    }
+
+    .errors {
+      color: $red4;
+      font-size: 0.8em;
+      font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+      background-color: $dark-gray4;
+      margin-bottom: 10px;
+      font-weight: 500;
+      padding: 10px;
+    }
+
+    .input .hint {
+      position: absolute;
+      bottom: 0px;
+      left: 30px;
+      color: $gray1;
+      font-weight: 700;
+      font-size: 0.8em;
+    }
+  }
+  .interpreter .editor {
+    height: 80px;
+  }
+}
+
+.sa-question {
+  padding: 10px 25px;
+}
+
+.sa-comments {
+  padding: 0px 20px;
+  overflow-y: auto;
+  height: 70vh;
+  .poster {
+    text-transform: uppercase;
+    font-size: 0.8em;
+    font-weight: 500;
+    margin-left: 10px;
+    position: absolute;
+    left: 0px;
+    top: 10px;
+  }
+  .date {
+    text-transform: uppercase;
+    font-size: 0.8em;
+    font-weight: 500;
+    position: absolute;
+    margin-right: 10px;
+    right: 0px;
+    top: 10px;
+  }
+  .pt-card {
+    padding: 20px;
+    padding-top: 40px;
+  }
+  .content {
+    white-space: pre;
+  }
+  ul {
+    padding-left: 0;
+    margin-top: 0;
+  }
+  li {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+  textarea {
+    margin-bottom: 10px;
+  }
+}
+
+.sa-mcq {
+  padding: 25px;
+
+  .content {
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    background: $dark-gray2;
+  }
+
+  .choices {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .choice {
+    cursor: pointer;
+    padding: 15px;
+    background-color: $dark-gray3;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 3px solid transparent;
+  }
+
+  .choice:hover {
+    background-color: $dark-gray4;
+  }
+
+  .choice-correct {
+    border: 3px solid $pt-intent-success;
+  }
+
+  .choice-incorrect {
+    border: 3px solid $pt-intent-danger;
+  }
+}
+
+.rune-canvas, .canvas-container canvas {
+  width: 256px;
+  height: 256px;
+}

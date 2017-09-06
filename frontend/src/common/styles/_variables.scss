@@ -1,0 +1,24 @@
+/* Modify BlueprintJS variables here */
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+$icon-font-path: "~@blueprintjs/core/resources/icons" !default;
+$pt-font-family: 'Nunito', sans-serif !default;
+$pt-navbar-height: 50px !default;
+$pt-font-size: 14px !default;
+
+/* Source Academy Colors */
+$sa-black: #06060D !default;
+$sa-dark-blue: #101E35 !default;
+$sa-light-blue: lighten(#71BCB0, 15%) !default;
+
+
+$sa-gray5: #F2F4F7;
+$sa-gray4: darken($sa-gray5, 5%);
+$sa-gray3: darken($sa-gray5, 10%);
+$sa-gray2: darken($sa-gray5, 15%);
+$sa-gray1: darken($sa-gray5, 20%);
+
+$pt-intent-primary: #0F79E3 !default;
+
+/* Colors */
+@import '~@blueprintjs/core/src/common/variables';

@@ -1,0 +1,27 @@
+<%= form_for @changeset, @action, fn f -> %>
+  <%= input_group f, "Title", :title %>
+  <%= input_group f, "Content", :content, type: :richtext %>
+
+  <div class="pt-input-group">
+    <label class="pt-label">Options</label>
+    <div class="pt-form-content">
+      <label class="pt-control pt-checkbox">
+        <%= checkbox f, :is_pinned %>
+        <span class="pt-control-indicator"></span>
+        Pin Announcement
+      </label>
+    </div>
+  </div>
+
+  <div class="pt-input-group">
+    <div class="pt-form-content">
+      <label class="pt-control pt-checkbox">
+        <%= checkbox f, :is_published %>
+        <span class="pt-control-indicator"></span>
+        Publish Announcement
+      </label>
+    </div>
+  </div>
+  <hr />
+  <%= submit "Save", class: "pt-button pt-intent-primary" %>
+<% end %>

@@ -1,0 +1,8 @@
+<%= admin_header @conn, "Submissions" %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+    </div>
+  </div>
+</div>

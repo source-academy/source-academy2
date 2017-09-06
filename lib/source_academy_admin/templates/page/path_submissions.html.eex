@@ -1,0 +1,10 @@
+<%= admin_header @conn, "Path Submissions" %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <h5>100 Recent Submissions</h5>
+      <%= non_ideal_state "No Submissions", "", icon: "circle"  %>
+    </div>
+  </div>
+</div>

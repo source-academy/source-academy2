@@ -1,0 +1,51 @@
+<%= form_for @changeset, @action, [method: @method], fn f -> %>
+  <div class="pt-callout">
+    <div class="row">
+      <div class="col-xs-4">
+        Assessment Close At
+      </div>
+      <div class="col-xs end-xs">
+        <%= display_datetime(@changeset.data.assessment.close_at) %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-4">
+        Student Submit At
+      </div>
+      <div class="col-xs end-xs">
+        <%= display_datetime(@changeset.data.submitted_at) %>
+      </div>
+    </div>
+  </div>
+  <div class="pt-card">
+    <ol>
+      <%= inputs_for f, :programming_answers, fn p -> %>
+        <div class="row">
+          <div class="col-xs-1">
+            Q<%= p.data.question.question.display_order %>
+          </div>
+          <div class="col-xs-4">
+            <%= p.data.question.question.title %>
+          </div>
+          <div class="col-xs-5 end-xs">
+            <%= text_input p, :marks, class: "pt-input" %>
+          </div>
+          <div class="col-xs-2">
+          of <%= p.data.question.question.weight %>
+          </div>
+        </div>
+      <% end %>
+    </ol>
+  </div>
+  <div class="pt-callout">
+    You can input specific amount of XP instead of
+    <b>(marks/total_mark) * max_xp</b> formula. <br />
+    For late submission or other special cases you
+    <b>MUST</b> calculate the XP yourself and input the amount here.
+    <br /> <br />
+    <b>Important:</b> You must left this blank if you want the XP to
+    be automatically calculated based on marks.
+  </div>
+  <%= input_group f, "Override XP", :override_xp %>
+  <%= submit "Submit Grading", class: "pt-button pt-intent-primary" %>
+<% end %>

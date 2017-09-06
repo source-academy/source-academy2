@@ -1,0 +1,31 @@
+<%= form_for @changeset, @action, [method: @method], fn f -> %>
+  <%= hidden_input f, :redirect_to, value: current_path(@conn) %>
+  <div class="row">
+    <div class="col-xs-5">
+      <%= input_group f, "Content", :content, type: :textarea, rows: 3 %>
+    </div>
+    <div class="col-xs-5">
+      <%= input_group f, "Hint", :hint, type: :textarea, rows: 3 %>
+    </div>
+    <div class="col-xs">
+      <div class="pt-input-group">
+        <div class="pt-form-content">
+          <label class="pt-control pt-checkbox">
+            <%= checkbox f, :is_correct %>
+            <span class="pt-control-indicator"></span>
+            Correct Answer
+          </label>
+        </div>
+      </div>
+      <%= submit (if @method == "put", do: "Save", else: "Add"),
+        class: ("pt-button pt-intent-" <>
+          if @method == "put", do: "primary", else: "success") %>
+      <%= if @method == "put" do %>
+        <%= link "Delete", to: @delete_action <>
+          "?redirect_to=" <> current_path(@conn),
+              method: "delete",
+              class: "pt-button pt-intent-danger" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,31 @@
+<div class="sa-admin-header row pt-dark">
+  <div class="heading col-xs-12">
+    Discussion Groups
+  </div>
+</div>
+<div class="sa-admin-content">
+  <%= for {staff, entries} <- @discussion_groups do %>
+    <div class="sa-panel">
+      <div class="heading">
+       <%= display_name(staff) %>
+      </div>
+      <%= if !Enum.empty?(@students) do %>
+        <div class="distinguish">
+          <%= render "form.html",
+                conn: @conn,
+                staff: staff,
+                action: admin_discussion_group_path(@conn, :create),
+                students: @students,
+                changeset: @changeset %>
+        </div>
+      <% end %>
+      <div class="body">
+        <%= render "table.html",
+              conn: @conn,
+              staff: staff,
+              entries: entries %>
+      </div>
+    </div>
+    <br />
+  <% end %>
+<div>

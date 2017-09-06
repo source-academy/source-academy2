@@ -1,0 +1,58 @@
+<%= admin_header @conn, display_question_header(@assessment, @question), fn -> %>
+  <%= link "Back", to: admin_assessment_path(@conn, :show, @assessment.id),
+          class: "pt-button pt-dark" %>
+<% end %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="heading">Question Detail</div>
+    <div class="distinguish">
+      <% action = admin_assessment_question_path(@conn, :update,
+          @assessment.id, @question.id) %>
+      <%= render "question/form.html",
+            method: "put",
+            changeset: @changeset,
+            action: action %>
+    </div>
+  </div>
+  <div class="sa-panel">
+    <div class="heading">
+      <%= display_question_type(@question) %>
+      Question
+    </div>
+    <div class="body">
+      <%= if @question.programming_question != nil do %>
+        <%= render "programming_question/form.html",
+              conn: @conn,
+              assessment: @assessment,
+              changeset: @programming_question_changeset,
+              programming_question: @programming_question,
+              test_case_changesets: @test_case_changesets,
+              test_case_changeset: @test_case_changeset,
+              tab: @tab %>
+      <% else %>
+        <%= render "mcq_question/form.html",
+              conn: @conn,
+              assessment: @assessment,
+              changeset: @mcq_question_changeset,
+              mcq_question: @mcq_question %>
+      <% end %>
+    </div>
+  </div>
+
+  <%= if @question.mcq_question != nil do %>
+    <div class="sa-panel">
+      <div class="heading">
+        Answer Choices
+      </div>
+      <div class="body">
+        <%= render "mcq_question/choices.list.html",
+              conn: @conn,
+              assessment: @assessment,
+              mcq_question: @question.mcq_question,
+              mcq_choice_changesets: @mcq_choice_changesets,
+              mcq_choice_changeset: @mcq_choice_changeset %>
+      </div>
+    </div>
+  <% end %>
+</div>

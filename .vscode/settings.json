@@ -1,0 +1,4 @@
+{
+  "elixirLinter.useStrict": true,
+  "typescript.tsdk": "./frontend/node_modules/typescript/lib"
+}

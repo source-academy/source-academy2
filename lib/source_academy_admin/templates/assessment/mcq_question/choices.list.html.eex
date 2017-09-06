@@ -1,0 +1,23 @@
+<%= for changeset <- @mcq_choice_changesets do %>
+  <div class="pt-callout">
+    <%= render "mcq_question/choices.form.html",
+          conn: @conn,  
+          method: "put",
+          changeset: changeset,
+          delete_action:
+            admin_assessment_mcq_question_choices_path(
+              @conn, :delete, @assessment.id, @mcq_question.id,
+                changeset.data.id),
+          action: admin_assessment_mcq_question_choices_path(
+              @conn, :update, @assessment.id, @mcq_question.id,
+                changeset.data.id) %>
+  </div>
+<% end %>
+<hr />
+<h5>Add New Choice</h5>
+<%= render "mcq_question/choices.form.html",
+      conn: @conn,
+      method: "post",
+      changeset: @mcq_choice_changeset,
+      action: admin_assessment_mcq_question_choices_path(
+        @conn, :create, @assessment.id, @mcq_question.id) %>

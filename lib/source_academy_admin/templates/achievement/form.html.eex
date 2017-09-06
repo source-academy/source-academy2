@@ -1,0 +1,8 @@
+<%= form_for @changeset, @action, [multipart: true, method: @method], fn f -> %>
+  <%= input_group f, "Title", :title %>
+  <%= input_group f, "Description", :description, type: :textarea %>
+  <%= input_group f, "Badge Image", :image_url, type: :file %>
+  <%= input_group f, "Category", :category %>
+  <%= input_group f, "Trigger Query", :query, type: :textarea %>
+  <%= submit "Submit", class: "pt-button pt-intent-primary" %>
+<% end %>

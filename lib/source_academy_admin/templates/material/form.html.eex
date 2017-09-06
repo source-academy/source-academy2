@@ -1,0 +1,24 @@
+<%= form_for @changeset, admin_material_path(@conn, :create), [multipart: true], fn f -> %>
+  <div class="row">
+    <div class="col-xs-8">
+      <%= input_group f, "Title", :title %>
+    </div>
+    <div class="col-xs">
+      <%= input_group f, "Category", :category_id,
+            type: :select,
+            options: Enum.map(@categories, &({&1.name, &1.id})) %>
+    </div>
+  </div>
+  <%= input_group f, "Description", :description, type: :textarea, rows: 2 %>
+  <%= input_group f, "Upload File", :url, type: :file  %>
+  <div class="pt-input-group">
+    <label class="pt-label">Options</label>
+    <label class="pt-control pt-checkbox .modifier">
+      <%= checkbox f, :is_public %>
+      <span class="pt-control-indicator"></span>
+      Publish
+    </label>
+  </div>
+  <hr />
+  <%= submit "Upload", class: "pt-button pt-intent-primary" %>
+<% end %>

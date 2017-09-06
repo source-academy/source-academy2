@@ -1,0 +1,11 @@
+<%= admin_header @conn, "My Student" %>
+
+<div class="sa-admin-content">
+  <div class="sa-panel">
+    <div class="body">
+      <%= render StudentView, "table.html",
+            conn: @conn,
+            students: @students  %>
+    </div>
+  </div>
+</div>

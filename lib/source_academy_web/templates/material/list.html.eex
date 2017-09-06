@@ -1,0 +1,18 @@
+<%= if Enum.empty?(@materials) do %>
+  <%= non_ideal_state "No Materials",
+       "There are no materials uploaded under this category",
+       icon: "folder-open" %>
+<% else %>
+  <%= for material <- @materials do %>
+    <div class="row">
+      <div class="col-xs-4">
+        <strong>
+          <%= link material.title, to: display_material_url(material) %>
+        </strong>
+      </div>
+      <div class="col-xs">
+        <%= material.description %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

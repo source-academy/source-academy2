@@ -8,6 +8,7 @@ import Interpreter from './Interpreter'
 import Question from './Question'
 import Comments from './Comments'
 import PlaygroundControl from './PlaygroundControl'
+import ListVisualizer from './ListVisualizer'
 
 export type OwnProps = {}
 export type Props = OwnProps & {
@@ -64,11 +65,13 @@ const ProgrammingWorkspace: React.StatelessComponent<Props> = props => {
   const question = <Question content={props.content} />
   const comments = <Comments />
   const editor = <Editor />
+  const listVisualizer = window.ListVisualizer ? <ListVisualizer /> : <div />
   const side = (
     <SideContent
       interpreter={interpreter}
       question={question}
       comments={comments}
+      listVisualizer={listVisualizer}
     />
   )
   const body = getBody(props, editor, side)

@@ -210,3 +210,14 @@
   width: 256px;
   height: 256px;
 }
+
+.sa-list-visualizer {
+  padding: 20px;
+  #list-visualizer-container div {
+    display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    height: 70vh !important;
+    overflow: auto;
+  }
+}

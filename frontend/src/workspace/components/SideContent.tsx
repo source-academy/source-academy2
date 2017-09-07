@@ -9,6 +9,7 @@ export type OwnProps = {
   interpreter: React.ReactElement<any> | JSX.Element
   question: React.ReactElement<any> | JSX.Element
   comments: React.ReactElement<any> | JSX.Element
+  listVisualizer: React.ReactElement<any> | JSX.Element
 }
 
 export type Props = OwnProps & {
@@ -23,7 +24,8 @@ const TAB_ICONS: {[tab:string]: string} = {
   question: IconClasses.HELP,
   comments: IconClasses.COMMENT,
   tests: IconClasses.COMPARISON,
-  grading: IconClasses.SAVED
+  grading: IconClasses.SAVED,
+  list_visualizer: IconClasses.EYE_OPEN
 }
 
 const mapDispatchToProps = (dispatch: Dispatch<Shape>) =>
@@ -51,6 +53,9 @@ const getTabs = ({ isPlayground, assessmentType, activeTab, setActiveTab }: Prop
   if (assessmentType === 'path') {
     extraTabs = ['tests']
   }
+  if (window.ListVisualizer) {
+    extraTabs.push('list_visualizer')
+  }
   const tabs = baseTabs.concat(extraTabs)
   return tabs.map(key =>
     <Button
@@ -70,6 +75,9 @@ const getBody = (props: Props) => {
       break
     case 'comments':
       body = props.comments
+      break
+    case 'list_visualizer':
+      body = props.listVisualizer
       break
     default:
       body = props.question

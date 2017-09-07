@@ -31,7 +31,7 @@ export type ProgrammingQuestion = {
 export type Config = {
   isReadOnly: boolean
   isPlayground: boolean
-  activeLayout: 'split' | 'editor-only' | 'side-only'
+  activeLayout: LayoutTypes
   filename: string
   libraries: Library[]
   library: Library

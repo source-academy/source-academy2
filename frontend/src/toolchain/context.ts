@@ -42,7 +42,8 @@ const extraList = [
   'filter',
   'enum_list',
   'list_ref',
-  'accumulate'
+  'accumulate',
+  'draw'
 ]
 
 export const createContext = ({ week, externals }: Options): StaticState => {

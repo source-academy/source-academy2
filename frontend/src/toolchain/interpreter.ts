@@ -113,6 +113,13 @@ const createGlobalEnvironment = (week: number) =>
 
       importExternal(m, 'prompt', prompt)
       importExternal(m, 'parseInt', parseInt)
+      if (window.ListVisualizer) {
+        importExternal(m, 'draw', window.ListVisualizer.draw)
+      } else {
+        importExternal(m, 'draw', function() {
+          throw new Error('List visualizer is not enabled')
+        })
+      }
     }
     importExternal(m, 'alert', alert)
     importExternal(m, 'math_floor', Math.floor)

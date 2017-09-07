@@ -657,9 +657,10 @@ defmodule SourceAcademy.Assessments do
     if Enum.empty?(assessments) do
       nil
     else
-      Enum.min_by(assessments,
+      [hd | _ ] = Enum.sort_by(assessments,
         &story_name_pair/1,
         &compare_story_name_pair/2)
+      hd
     end
   end
 
@@ -671,7 +672,9 @@ defmodule SourceAcademy.Assessments do
     cond do
       t1 == t2 -> n1 <= n2
       t1 == :mission -> true
-      t1 == :sidequest && t2 == :contest -> true
+      t1 == :sidequest && t2 == :mission -> false
+      t1 == :contest && t2 == :mission -> false
+      t1 == :contest && t2 == :sidequest -> false
       true -> false
     end
   end

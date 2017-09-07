@@ -78,6 +78,7 @@ export type InterpreterState = {
 
 export type EditorState = {
   id?: string
+  isDirty: boolean
   value: string
 }
 

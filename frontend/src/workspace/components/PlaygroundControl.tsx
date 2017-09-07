@@ -21,6 +21,7 @@ export type Props = {
   filename: string
   activeLayout: 'split' | 'editor-only' | 'side-only'
   isReadOnly: boolean
+  isDirty: boolean
   libraries: string[]
   nextAction?: string
   previousAction?: string
@@ -42,7 +43,8 @@ const mapStateToProps = (state: Shape, ownProps: OwnProps) => ({
   questionType: state.config.questionType,
   isReadOnly: state.config.isReadOnly,
   libraries: state.config.libraries.map(n => n.title),
-  library: state.config.library.title
+  library: state.config.library.title,
+  isDirty: state.editor.isDirty
 })
 
 const mapDispatchToProps = (dispatch: Dispatch<Shape>) =>
@@ -58,6 +60,23 @@ const mapDispatchToProps = (dispatch: Dispatch<Shape>) =>
     dispatch
   )
 
+const getSaveButton = (props: Props) => {
+  const { isReadOnly, questionType, isPlayground, isDirty, saveEditor } = props
+  const isProgramming = questionType === 'programming_question'
+  const isShown = !isReadOnly && isProgramming && !isPlayground
+  if (isShown) {
+    const intent = isDirty ? Intent.WARNING : Intent.NONE
+    return (
+      <Button intent={intent} onClick={saveEditor}
+        iconName="floppy-disk">
+        Save
+      </Button>
+    )
+  } else {
+    return null
+  }
+}
+
 const PlaygroundControl: React.StatelessComponent<Props> = (props) => {
   const {
     isPlayground,
@@ -71,7 +90,6 @@ const PlaygroundControl: React.StatelessComponent<Props> = (props) => {
     library,
     nextAction,
     previousAction,
-    saveEditor,
     questionType
     } = props
   let filenameInput
@@ -115,9 +133,7 @@ const PlaygroundControl: React.StatelessComponent<Props> = (props) => {
     </Button>
   const runButton = (isPlayground || isProgramming)
     && genericButton('Run', 'play', evalEditor)
-  const saveButton =
-    !isReadOnly && isProgramming && !isPlayground &&
-    genericButton('Save', 'floppy-disk', () => saveEditor())
+  const saveButton = getSaveButton(props)
   let nextButton = null
   let previousButton = null
 
@@ -125,7 +141,8 @@ const PlaygroundControl: React.StatelessComponent<Props> = (props) => {
     if (nextAction && /submit/.test(nextAction)) {
       if (isReadOnly) {
         nextButton = (
-          <a className='pt-button pt-icon-tick pt-disabled' href={nextAction}>
+          <a className='pt-button pt-icon-tick pt-disabled'
+             href={nextAction}>
             <span>Submitted</span>
           </a>
         )

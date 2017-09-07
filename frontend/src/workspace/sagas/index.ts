@@ -12,7 +12,7 @@ import * as actions from '../actions'
 import { loadLibrary } from '../libraryLoader'
 import api, { exactApi } from '../api'
 
-function* syncURL() {
+function* syncURL(action: any) {
   let lz = yield select((state: Shape) => state.editor.value)
   lz = compressToEncodedURIComponent(lz)
   const read_only = yield select((state: Shape) => state.config.isReadOnly)
@@ -25,6 +25,9 @@ function* syncURL() {
     library: library.title
   })
   history.replaceState(undefined, undefined as any, `#${hash}`)
+  if (action.type === actionTypes.SET_LIBRARY) {
+    location.reload()
+  }
 }
 
 function* syncURLSaga(): SagaIterator {

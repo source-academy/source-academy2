@@ -677,7 +677,7 @@ defmodule SourceAcademy.Assessments do
   end
 
   def story_name(assessment) do
-    type = :erlang.atom_to_binary(assessment.type, :utf8)
+    type = Atom.to_string(assessment.type)
     String.downcase(type) <> "-" <> assessment.name
   end
 

@@ -33,9 +33,6 @@
       <%= input_group f, "Description", :description,
                 type: :textarea, hint: "Story summary, short" %>
       <div class="row">
-        <div class="col-xs-6">
-          <%= input_group f, "StoryXML File", :story_url, type: :file %>
-        </div>
         <div class="col-xs">
           <%= input_group f, "Cover Image", :cover_url, type: :file %>
         </div>

@@ -671,6 +671,7 @@ defmodule SourceAcademy.Assessments do
     cond do
       t1 == t2 -> n1 <= n2
       t1 == :mission -> true
+      t1 == :sidequest && t2 == :contest -> true
       true -> false
     end
   end

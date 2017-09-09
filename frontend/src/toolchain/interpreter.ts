@@ -323,9 +323,12 @@ ev.CallExpression = function*(node: es.CallExpression, state) {
     try {
       result = callee.apply(window, args.map(interopToJS))
     } catch (e) {
+      // Recover from exception
       const error = new ExceptionError(e, node.loc!)
+      const globalFrame = state.frames.first()
       return state.with({
         isRunning: false,
+        frames: Stack.of(globalFrame),
         errors: state.errors.push(error)
       }) as InterpreterState
     }

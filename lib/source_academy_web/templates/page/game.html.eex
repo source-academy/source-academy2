@@ -9,6 +9,11 @@
     background: black;
   }
 </style>
+<%= if @story_override do %>
+  <script>
+    var STORY_OVERRIDE = "<%= @story_override %>";
+  </script>
+<% end %>
 <%= link "Attempt",
       id: "attempt",
       style: "display:none",

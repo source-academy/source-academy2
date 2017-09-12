@@ -42,15 +42,15 @@ export class InterpreterState extends Record(params)
   _done: boolean
 
   with(newParams: Partial<InterpreterState>) {
-    let newState
+    let newState: this
     if (Array.isArray(newParams.value)) {
       const val = newParams.value.slice()
       delete newParams.value
-      newState = this.merge(newParams).set('value', val)
+      newState = this.merge(newParams).set('value', val) as this
     } else {
-      newState = this.merge(newParams)
+      newState = this.merge(newParams) as this
     }
-    ;(window as any).CURRENT_INTERPRETER = newState
+    window.CURRENT_INTERPRETER = newState
     return newState
   }
 }

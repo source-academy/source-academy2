@@ -23,6 +23,6 @@ defmodule SourceAcademy.Assessments.Question do
     question
     |> cast(params, @required_fields)
     |> validate_required(@required_fields)
-    |> validate_number(:weight, greater_than: 0)
+    |> validate_number(:weight, greater_than_or_equal_to: 0)
   end
 end

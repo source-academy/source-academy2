@@ -2,11 +2,15 @@ import * as React from 'react'
 import { render } from 'react-dom'
 import { DateRangePicker } from '@blueprintjs/datetime'
 import * as moment from 'moment-timezone'
-import renderMarkdown from './renderMarkdown'
+import renderMarkdownWithoutLatex, { renderMarkdownWithLatex } from './renderMarkdown'
 
 export const markdownView = async (container: HTMLElement) => {
-  const markdown = await renderMarkdown(container.textContent || '')
+  const markdown = await renderMarkdownWithoutLatex(container.textContent || '')
   container.innerHTML = markdown
+}
+
+export const latexMarkdownView = async (container: HTMLElement) => {
+  await renderMarkdownWithLatex(container, container.innerHTML)
 }
 
 export const dateRangePicker = (

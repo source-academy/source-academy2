@@ -39,4 +39,9 @@ document.addEventListener('DOMContentLoaded', function(event) {
   for (let i = 0; i < items.length; i++) {
     components.markdownView(items.item(i) as any)
   }
+
+  const latexMarkdowns = document.querySelectorAll('div.markdown-latex-view')
+  for (let i = 0; i < latexMarkdowns.length; i++) {
+    components.latexMarkdownView(latexMarkdowns.item(i) as any)
+  }
 })

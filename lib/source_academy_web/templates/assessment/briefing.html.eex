@@ -1,3 +1,11 @@
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    showProcessingMessages: false,
+    tex2jax: { inlineMath: [['$','$'],['\\(','\\)']] },
+    TeX: { equationNumbers: {autoNumber: "AMS"} }
+  });
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <div class="sa-assessment-briefing pt-elevation-0">
   <h3>
     <%= display_assessment_name(@assessment) %>:
@@ -8,7 +16,6 @@
   <div class="markdown-view">
     <%= @assessment.briefing %>
   </div>
-
   <%= link to: assessment_path(@conn, :question, @assessment.id, 1),
            class: "pt-button pt-intent-success" do %>
     Continue

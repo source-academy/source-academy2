@@ -16,6 +16,7 @@ let currentScope: CFG.Scope
 
 // Helper functions
 const isNumber = (t: CFG.Type) => t === anyT || t === numberT
+const isBoolean = (t: CFG.Type) => t === anyT || t === booleanT
 
 const isSameFunctionType = (t1: CFG.Type, t2: CFG.Type) => {
   if (t1.name !== 'function' || t2.name !== 'function') {
@@ -380,7 +381,7 @@ checkers.ConditionalExpression = (node: es.ConditionalExpression, state) => {
     state,
     booleanT
   )
-  if (testType !== booleanT) {
+  if (!isBoolean(testType)) {
     throw new NonBooleanInConditionalExpressionTest(node, testType, testProof)
   }
   const { type: consType, proof: consProof } = checkers[node.consequent.type](
@@ -412,7 +413,7 @@ checkers.UnaryExpression = (node: es.UnaryExpression, state) => {
   )
   if ((node.operator === '-' || node.operator === '+') && !isNumber(argType)) {
     throw new NonNumberInUnaryArithmeticExpression(node, argType, argProof)
-  } else if (node.operator === '!' && argType !== booleanT) {
+  } else if (node.operator === '!' && !isBoolean(argType)) {
     throw new NonBooleanInNegationExpression(node, argType, argProof)
   }
   if (node.operator === '!') {
@@ -567,10 +568,10 @@ checkers.LogicalExpression = (node: es.LogicalExpression, state) => {
     state,
     booleanT
   )
-  if (leftType !== booleanT) {
+  if (!isBoolean(leftType)) {
     throw new NonBooleanInLogicalExpression(node, leftType, 'left', leftProof)
   }
-  if (rightType !== booleanT) {
+  if (!isBoolean(rightType)) {
     throw new NonBooleanInLogicalExpression(
       node,
       rightType,
@@ -587,7 +588,7 @@ checkers.IfStatement = (node: es.IfStatement, state) => {
     state,
     booleanT
   )
-  if (testType !== booleanT) {
+  if (!isBoolean(testType)) {
     throw new NonBooleanInIfTest(node.test, testType, testProof)
   }
   return { type: undefinedT, proof: node }

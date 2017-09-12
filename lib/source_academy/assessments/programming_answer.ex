@@ -7,7 +7,7 @@ defmodule SourceAcademy.Assessments.ProgrammingAnswer do
   alias SourceAcademy.Workspace.Code
 
   schema "assessment_programming_answers" do
-    field :marks, :integer, default: 0
+    field :marks, :float, default: 0.0
 
     belongs_to :submission, Submission
     belongs_to :question, ProgrammingQuestion
@@ -20,6 +20,6 @@ defmodule SourceAcademy.Assessments.ProgrammingAnswer do
   def changeset(answer, params) do
     answer
     |> cast(params, @required_fields ++ @optional_fields)
-    |> validate_number(:marks, greater_than_or_equal_to: 0)
+    |> validate_number(:marks, greater_than_or_equal_to: 0.0)
   end
 end

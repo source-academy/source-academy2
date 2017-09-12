@@ -536,10 +536,7 @@ defmodule SourceAcademy.Assessments do
       # Get previous marks
       previous_marks = submission.programming_answers
         |> Enum.map(&(&1.marks))
-        |> Enum.reduce(fn (mark, acc) ->
-             mark = mark || 0
-             acc + mark
-          end)
+        |> Enum.sum
 
       # Update Programming Answers
       for {_, ps} <- params["programming_answers"] do
@@ -553,11 +550,14 @@ defmodule SourceAcademy.Assessments do
 
       total_marks = params["programming_answers"]
         |> Enum.map(fn {_, params} -> params["marks"] end)
-        |> Enum.map(&String.to_integer/1)
-        |> Enum.reduce(&(&1 + &2))
+        |> Enum.map(fn mark ->
+          {parsed, _} = Float.parse(mark)
+          parsed
+        end)
+        |> Enum.sum
       max_marks = submission.programming_answers
         |> Enum.map(&(&1.question.question.weight))
-        |> Enum.reduce(&(&1 + &2))
+        |> Enum.sum
       total_marks = Enum.min([total_marks, max_marks])
       max_xp = submission.assessment.max_xp
       previous_xp = (previous_marks / max_marks) * max_xp
@@ -569,15 +569,13 @@ defmodule SourceAcademy.Assessments do
         String.to_integer(params["override_xp"])
       end
       delta_xp = round(to_add - to_subtract)
-      update = if previous_marks > 0, do: " update.", else: ""
+      update = if previous_marks > 0, do: " update", else: ""
 
       # Increase XP
       assessment = submission.assessment
       name = display_assessment_name(assessment)
       {:ok, xp_history} = Course.create_xp_history(%{
-        "reason" => name <> " XP" <> update <> ". (" <>
-          Integer.to_string(total_marks) <> "/" <>
-          Integer.to_string(max_marks) <> ")",
+        "reason" => "#{name} XP#{update}. (#{total_marks}/#{max_marks})",
         "amount" => delta_xp
       }, submission.student_id, grader.id)
 

@@ -1,20 +1,26 @@
 import * as es from 'estree'
-import { List, Stack, Map } from 'immutable'
 import { generate } from 'astring'
 
-import { IError } from './types/error'
-import { Scope, InterpreterState } from './types/dynamic'
+import { SourceError } from './types/error'
+import { Scope, InterpreterState as State, Value } from './types/dynamic'
 import Closure from './Closure'
 import stringifyValue from './utils/stringify'
-import * as list from './stdlib/list'
-import * as misc from './stdlib/misc'
+import createGlobalEnvironment from './utils/createGlobalEnvironment'
+import sourceValueToJS from './utils/sourceValueToJS'
 
 const MAX_STACK_LIMIT = 500
+const UNKNOWN_LOCATION: es.SourceLocation = {
+  start: {
+    line: -1,
+    column: -1,
+  },
+  end: {
+    line: -1,
+    column: -1
+  }
+}
 
-let frameCtr = 0
-let lambdaCtr = 0
-
-export class ExceptionError implements IError {
+export class ExceptionError implements SourceError {
   constructor(public error: Error, public location: es.SourceLocation) {}
 
   explain() {
@@ -26,11 +32,11 @@ export class ExceptionError implements IError {
   }
 }
 
-export class MaximumStackLimitExceeded implements IError {
+export class MaximumStackLimitExceeded implements SourceError {
   location: es.SourceLocation
 
   constructor(node: es.Node, private calls: es.CallExpression[]) {
-    this.location = node.loc!
+    this.location = node ? node.loc! : UNKNOWN_LOCATION
   }
 
   explain() {
@@ -47,10 +53,10 @@ export class MaximumStackLimitExceeded implements IError {
   }
 }
 
-export class CallingNonFunctionValue implements IError {
+export class CallingNonFunctionValue implements SourceError {
   location: es.SourceLocation
 
-  constructor(node: es.Node, private callee: any) {
+  constructor(node: es.Node, private callee: Value) {
     this.location = node.loc!
   }
 
@@ -63,243 +69,154 @@ export class CallingNonFunctionValue implements IError {
   }
 }
 
-const importExternal = (m: Map<string, any>, name: string, value: any) => {
-  if (typeof value === 'function' && value.toString) {
-    value.__SOURCE__ = value.toString()
-  }
-  m.set(name, value)
-}
+export class UndefinedVariable implements SourceError {
+  location: es.SourceLocation
 
-const createGlobalEnvironment = (week: number) =>
-  Map<string, any>().withMutations(m => {
-    if (week >= 4) {
-      importExternal(m, 'display', misc.display)
-      importExternal(m, 'timed', misc.timed)
-      // Define all Math libraries
-      let objs = Object.getOwnPropertyNames(Math)
-      for (let i in objs) {
-        const val = objs[i]
-        if (typeof Math[val] === 'function') {
-          importExternal(m, 'math_' + val, Math[val].bind())
-        } else {
-          importExternal(m, 'math_' + val, Math[val])
-        }
-      }
-    }
-    if (week >= 5) {
-      importExternal(m, 'list', list.list)
-      importExternal(m, 'pair', list.pair)
-      importExternal(m, 'is_pair', list.is_pair)
-      importExternal(m, 'is_list', list.is_list)
-      importExternal(m, 'is_empty_list', list.is_empty_list)
-      importExternal(m, 'head', list.head)
-      importExternal(m, 'tail', list.tail)
-      importExternal(m, 'length', list.length)
-      importExternal(m, 'map', list.map)
-      importExternal(m, 'build_list', list.build_list)
-      importExternal(m, 'for_each', list.for_each)
-      importExternal(m, 'list_to_string', list.list_to_string)
-      importExternal(m, 'reverse', list.reverse)
-      importExternal(m, 'append', list.append)
-      importExternal(m, 'member', list.member)
-      importExternal(m, 'remove', list.remove)
-      importExternal(m, 'remove_all', list.remove_all)
-      importExternal(m, 'equal', list.equal)
-      importExternal(m, 'assoc', list.assoc)
-      importExternal(m, 'filter', list.filter)
-      importExternal(m, 'enum_list', list.enum_list)
-      importExternal(m, 'list_ref', list.list_ref)
-      importExternal(m, 'accumulate', list.accumulate)
-
-      importExternal(m, 'prompt', prompt)
-      importExternal(m, 'parseInt', parseInt)
-      if (window.ListVisualizer) {
-        importExternal(m, 'draw', window.ListVisualizer.draw)
-      } else {
-        importExternal(m, 'draw', function() {
-          throw new Error('List visualizer is not enabled')
-        })
-      }
-    }
-    importExternal(m, 'alert', alert)
-    importExternal(m, 'math_floor', Math.floor)
-    importExternal(m, 'math_sqrt', Math.sqrt)
-    importExternal(m, 'math_log', Math.log)
-    importExternal(m, 'math_exp', Math.exp)
-  })
-
-/**
- * Create initial interpreter with global environment.
- *
- * @returns {InterpreterState}
- */
-export const createInterpreter = (
-  externals: string[],
-  week = 3
-): InterpreterState => {
-  const initialEnv = createGlobalEnvironment(week).withMutations(m => {
-    for (const external of externals) {
-      m.set(external, (window as any)[external])
-    }
-  })
-
-  const globalEnv: Scope = {
-    name: '_global_',
-    parent: undefined,
-    environment: initialEnv
+  constructor(public name: string, node: es.Node) {
+    this.location = node.loc!
   }
 
-  return new InterpreterState({
-    _done: false,
-    _isReturned: false,
-    _result: undefined,
-    isRunning: true,
-    frames: Stack.of(0),
-    scopes: Map.of(0, globalEnv),
-    errors: List(),
-    value: undefined,
-    node: undefined
-  })
+  explain() {
+    return `Undefined Variable ${this.name}`
+  }
+
+  elaborate() {
+    return 'TODO'
+  }
 }
 
-const stop = (state: InterpreterState): InterpreterState =>
-  state.with({ isRunning: false })
-
-const start = (state: InterpreterState): InterpreterState =>
-  state.with({ isRunning: true })
-
-const defineVariable = (
-  state: InterpreterState,
-  name: string,
-  value: any
-): InterpreterState => {
-  const currentFrame = state.frames.peek()
-  const scope = state.scopes.get(currentFrame)
-  return state.with({
-    scopes: state.scopes.set(currentFrame, {
-      ...scope,
-      environment: scope.environment.set(name, value)
-    })
-  })
+const stop = (state: State) => {
+  state.isRunning = false
+  return state
 }
 
-const popFrame = (state: InterpreterState) =>
-  state.with({ frames: state.frames.pop() })
-
-const pushFrame = (state: InterpreterState, scope: Scope) => {
-  frameCtr++
-  return state.with({
-    scopes: state.scopes.set(frameCtr, scope),
-    frames: state.frames.push(frameCtr)
-  })
+const start = (state: State) => {
+  state.isRunning = true
+  return state
 }
 
-const getEnv = (name: string, state: InterpreterState) => {
-  let scope = state.scopes.get(state.frames.peek())
+const defineVariable = (state: State, name: string, value: any) => {
+  const currentScope = state.stack[0]
+  currentScope.environment[name] = value
+  return state
+}
 
-  do {
-    if (scope.environment.has(name)) {
-      return scope.environment.get(name)
+const popFrame = (state: State) => {
+  state.stack.shift()
+  return state
+}
+
+const pushFrame = (state: State, scope: Scope) => {
+  state.stack.unshift(scope)
+  return state
+}
+
+const getEnv = (name: string, state: State) => {
+  let idx = 0
+  let scope = state.stack[idx]
+  while (scope) {
+    if (scope.environment.hasOwnProperty(name)) {
+      return scope.environment[name]
     } else {
-      scope = state.scopes.get(scope.parent!)
+      scope = state.stack[++idx]
     }
-  } while (scope)
-
-  return undefined
-}
-
-const interopToJS = (value: any) => {
-  if (value instanceof Closure) {
-    // tslint:disable
-    return function() {
-      const args: any[] = []
-      Array.prototype.forEach.call(arguments, (m: any) => {
-        args.push(m)
-      })
-      const interpreterState = (window as any).CURRENT_INTERPRETER
-      const gen = applyClosure(value, args, interpreterState)
-      let it = gen.next()
-      while (!it.done) {
-        it = gen.next()
-      }
-      return it.value.value
-    }
-    // tslint:enable
-  } else {
-    return value
   }
+  throw new UndefinedVariable(name, state.node!)
 }
 
 export type Evaluator<T extends es.Node> = (
   node: T,
-  state: InterpreterState
-) => IterableIterator<InterpreterState>
+  state: State
+) => IterableIterator<State>
 
-export const evaluators: { [nodeType: string]: Evaluator<any> } = {}
+export const evaluators: { [nodeType: string]: Evaluator<{}> } = {}
 const ev = evaluators
 
-function* applyClosure(
-  callee: Closure,
-  args: any[],
-  state: InterpreterState,
-  node?: es.CallExpression
+function* moveTo(node: es.Node, state: State) {
+  state._done = false
+  state.node = node
+  yield state
+}
+
+function* done(node: es.Node, state: State) {
+  state._done = true
+  state.node = node
+  yield state
+}
+
+export function* apply(
+  callee: Closure | Value,
+  args: {}[],
+  state: State,
+  node: es.CallExpression
 ) {
-  state = pushFrame(state, callee.createScope(args, node))
+  if (callee instanceof Closure) {
+    if (state.stack.length > MAX_STACK_LIMIT) {
+      const stacks = state.stack.slice(0, 3).map(s => s.callExpression as es.CallExpression)
+      throw new MaximumStackLimitExceeded(
+        node,
+        stacks
+      )
+    }
+    yield* moveTo(callee.node.body, state)
+    pushFrame(state, callee.createScope(args, node))
+    yield* ev.BlockStatement(callee.node.body, state)
+    popFrame(state)
+    state._isReturned = false
+    return state
+  } else if (typeof callee === 'function') {
+    let result: Value
+    try {
+      result = callee.apply(window, args.map(a => sourceValueToJS(state, a)))
+    } catch (e) {
+      // Recover from exception
+      state.stack = [state.stack[0]]
+      throw new ExceptionError(e, node.loc!)
+    }
+    state.value = result
+    return state
+  } else {
+    throw new CallingNonFunctionValue(node, callee)
+  }
+}
 
-  yield (state = state.with({ _done: false, node: callee.node.body }))
-
-  state = yield* ev.BlockStatement(callee.node.body, state)
-
-  yield (state = popFrame(state).with({
-    _done: true,
-    node,
-    _isReturned: false
-  }))
+ev.FunctionExpression = function*(node: es.FunctionExpression, state: State) {
+  yield* moveTo(node, state)
+  state.value = new Closure(node, state.stack[0])
+  yield* done(node, state)
   return state
 }
 
-ev.FunctionExpression = function*(node: es.FunctionExpression, state) {
-  yield (state = state.with({ _done: false, node }))
-  const closure = new Closure(node, state.frames.first(), lambdaCtr)
-  lambdaCtr++
-  yield (state = state.with({ _done: true, node, value: closure }))
+ev.Identifier = function*(node: es.Identifier, state: State) {
+  yield* moveTo(node, state)
+  state.value = getEnv(node.name, state)
+  yield* done(node, state)
   return state
 }
 
-ev.Identifier = function*(node: es.Identifier, state) {
-  yield (state = state.with({ _done: false, node }))
-  yield (state = state.with({
-    _done: true,
-    node,
-    value: getEnv(node.name, state)
-  }))
+ev.Literal = function*(node: es.Literal, state: State) {
+  yield* moveTo(node, state)
+  state.value = node.value
+  yield* done(node, state)
   return state
 }
 
-ev.Literal = function*(node: es.Literal, state) {
-  yield (state = state.with({ _done: false, node }))
-  yield (state = state.with({ _done: true, node, value: node.value }))
+ev.ArrayExpression = function*(node: es.ArrayExpression, state: State) {
+  yield* moveTo(node, state)
+  state.value = node.elements
+  yield* done(node, state)
   return state
 }
 
-ev.ArrayExpression = function*(node: es.ArrayExpression, state) {
-  yield (state = state.with({ _done: false, node }))
-  yield (state = state.with({ _done: true, node, value: node.elements }))
-  return state
-}
+ev.CallExpression = function*(node: es.CallExpression, state: State) {
+  yield* moveTo(node, state)
 
-ev.CallExpression = function*(node: es.CallExpression, state) {
-  yield (state = state.with({ _done: false, node }))
-
-  if (state.frames.size > MAX_STACK_LIMIT) {
-    const error = new MaximumStackLimitExceeded(
+  if (state.stack.length > MAX_STACK_LIMIT) {
+    const stacks = state.stack.slice(0, 3).map(s => generate(s.callExpression))
+    throw new MaximumStackLimitExceeded(
       node,
-      state.frames.take(3).map(n => state.scopes.get(n!).callExpression).toJS()
+      stacks
     )
-    return state.with({
-      isRunning: false,
-      errors: state.errors.push(error)
-    }) as InterpreterState
   }
 
   // Evaluate Callee
@@ -307,47 +224,23 @@ ev.CallExpression = function*(node: es.CallExpression, state) {
   const callee = state.value
 
   // Evaluate each arguments from left to right
-  const args: any[] = []
+  const args: {}[] = []
   for (const exp of node.arguments) {
     state = yield* ev[exp.type](exp, state)
     args.push(state.value)
   }
-
-  // Internal Function Call
-  if (callee instanceof Closure) {
-    state = yield* applyClosure(callee, args, state, node)
-    return state
-    // Foreign Function Call
-  } else if (typeof callee === 'function') {
-    let result: any
-    try {
-      result = callee.apply(window, args.map(interopToJS))
-    } catch (e) {
-      // Recover from exception
-      const error = new ExceptionError(e, node.loc!)
-      const globalFrame = state.frames.first()
-      return state.with({
-        isRunning: false,
-        frames: Stack.of(globalFrame),
-        errors: state.errors.push(error)
-      }) as InterpreterState
-    }
-    return state.with({
-      _done: true,
-      node,
-      value: result
-    })
-  } else {
-    throw new CallingNonFunctionValue(node, callee)
-  }
+  state = yield* apply(callee, args, state, node)
+  yield* done(node, state)
+  return state
 }
 
-ev.UnaryExpression = function*(node: es.UnaryExpression, state) {
-  yield (state = state.with({ _done: false, node }))
+ev.UnaryExpression = function*(node: es.UnaryExpression, state: State) {
+  yield* moveTo(node, state)
+
+  // Evaluate argument
   state = yield* ev[node.argument.type](node.argument, state)
 
   let value
-  // tslint:disable-next-line
   if (node.operator === '!') {
     value = !state.value
   } else if (node.operator === '-') {
@@ -356,13 +249,12 @@ ev.UnaryExpression = function*(node: es.UnaryExpression, state) {
     value = +state.value
   }
 
-  yield (state = state.with({ _done: true, node, value }))
-
+  yield* done(node, state)
   return state
 }
 
-ev.BinaryExpression = function*(node: es.BinaryExpression, state) {
-  yield (state = state.with({ _done: false, node }))
+ev.BinaryExpression = function*(node: es.BinaryExpression, state: State) {
+  yield* moveTo(node, state)
 
   state = yield* ev[node.left.type](node.left, state)
   const left = state.value
@@ -374,6 +266,7 @@ ev.BinaryExpression = function*(node: es.BinaryExpression, state) {
     case '+':
       result = left + right
       break
+
     case '-':
       result = left - right
       break
@@ -413,7 +306,7 @@ ev.BinaryExpression = function*(node: es.BinaryExpression, state) {
   return state
 }
 
-ev.LogicalExpression = function*(node: es.LogicalExpression, state) {
+ev.LogicalExpression = function*(node: es.LogicalExpression, state: State) {
   yield (state = state.with({ _done: false, node }))
 
   state = yield* ev[node.left.type](node.left, state)
@@ -428,7 +321,7 @@ ev.LogicalExpression = function*(node: es.LogicalExpression, state) {
   return state
 }
 
-ev.ConditionalExpression = function*(node: es.ConditionalExpression, state) {
+ev.ConditionalExpression = function*(node: es.ConditionalExpression, state: State) {
   yield (state = state.with({ _done: false, node }))
   state = yield* ev[node.test.type](node.test, state)
 
@@ -440,7 +333,7 @@ ev.ConditionalExpression = function*(node: es.ConditionalExpression, state) {
   return state
 }
 
-ev.VariableDeclaration = function*(node: es.VariableDeclaration, state) {
+ev.VariableDeclaration = function*(node: es.VariableDeclaration, state: State) {
   const declaration = node.declarations[0]
   const id = declaration.id as es.Identifier
 
@@ -449,16 +342,16 @@ ev.VariableDeclaration = function*(node: es.VariableDeclaration, state) {
   return state.with({ value: undefined })
 }
 
-ev.FunctionDeclaration = function*(node: es.FunctionDeclaration, state) {
+ev.FunctionDeclaration = function*(node: es.FunctionDeclaration, state: State) {
   const id = node.id as es.Identifier
-  const closure = new Closure(node as any, state.frames.first())
+  const closure = new Closure(node as {}, state.frames.first())
 
   state = defineVariable(state, id.name, closure)
 
   return state.with({ value: undefined })
 }
 
-ev.IfStatement = function*(node: es.IfStatement, state) {
+ev.IfStatement = function*(node: es.IfStatement, state: State) {
   state = yield* ev[node.test.type](node.test, state)
 
   if (state.value) {
@@ -470,18 +363,18 @@ ev.IfStatement = function*(node: es.IfStatement, state) {
   return state
 }
 
-ev.ExpressionStatement = function*(node: es.ExpressionStatement, state) {
+ev.ExpressionStatement = function*(node: es.ExpressionStatement, state: State) {
   return yield* ev[node.expression.type](node.expression, state)
 }
 
-ev.ReturnStatement = function*(node: es.ReturnStatement, state) {
+ev.ReturnStatement = function*(node: es.ReturnStatement, state: State) {
   if (node.argument) {
     state = yield* ev[node.argument.type](node.argument, state)
   }
   return state.with({ _isReturned: true })
 }
 
-ev.BlockStatement = function*(node: es.BlockStatement, state) {
+ev.BlockStatement = function*(node: es.BlockStatement, state: State) {
   for (const statement of node.body) {
     yield (state = state.with({ _done: false, node: statement }))
     state = yield* ev[statement.type](statement, state)
@@ -495,8 +388,24 @@ ev.BlockStatement = function*(node: es.BlockStatement, state) {
   return state
 }
 
-export function* evalProgram(node: es.Program, state: InterpreterState) {
-  state = yield* ev.BlockStatement(node as any, start(state))
+/**
+ * Create initial interpreter with global environment.
+ *
+ * @returns {State}
+ */
+export const createInterpreter = (
+  externals: string[],
+  week = 3
+): State => {
+  const globalEnv = createGlobalEnvironment(week)
+  for (const external of externals) {
+    globalEnv[external] = window[external]
+  }
+  return new State(globalEnv)
+}
+
+export function* evalProgram(node: es.Program, state: State) {
+  state = yield* ev.BlockStatement(node as {}, start(state))
 
   return stop(state)
 }

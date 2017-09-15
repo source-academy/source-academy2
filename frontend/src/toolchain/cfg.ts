@@ -59,7 +59,7 @@ const walkIfStatement: Walker<es.IfStatement, StaticState> = (
   state,
   recurse
 ) => {
-  const test = (node.test as any) as es.Node & HasID
+  const test = node.test as (es.Node & HasID)
   let consequentExit
   let alternateExit
   // Connect test with previous node

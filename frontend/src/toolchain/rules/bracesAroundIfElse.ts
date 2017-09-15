@@ -1,10 +1,10 @@
 import * as es from 'estree'
 import { generate } from 'astring'
 import { stripIndent } from 'common-tags'
-import { IError } from '../types/error'
+import { SourceError } from '../types/error'
 import { Rule } from '../types/static'
 
-export class BracesAroundIfElseError implements IError {
+export class BracesAroundIfElseError implements SourceError {
   constructor(
     public node: es.IfStatement,
     public type: 'consequent' | 'alternate'
@@ -73,7 +73,7 @@ const bracesAroundIfElse: Rule<es.IfStatement> = {
 
   checkNodes: {
     IfStatement(node: es.IfStatement) {
-      const errors: IError[] = []
+      const errors: SourceError[] = []
       if (node.consequent && node.consequent.type !== 'BlockStatement') {
         errors.push(new BracesAroundIfElseError(node, 'consequent'))
       }

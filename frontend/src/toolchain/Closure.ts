@@ -1,7 +1,9 @@
 import * as es from 'estree'
-import { Map } from 'immutable'
 import { createNode } from './astUtils'
-import { Scope } from './types/dynamic'
+import { Scope, Value } from './types/dynamic'
+
+/** Keep track how many lambdas are created */
+let lambdaCtr = 0
 
 /**
  * Models function value in the interpreter environment.
@@ -10,20 +12,20 @@ class Closure {
   /** The Function Expression */
   public node: es.FunctionExpression
 
-  /** The enclosingScope scope */
-  public enclosingScope: number
-
   /** Unique ID defined for anonymous closure */
-  public id?: number
+  public name: string
 
   constructor(
     node: es.FunctionExpression,
-    enclosingScope: number,
-    id?: number
+    public enclosingScope: Scope
   ) {
     this.node = node
     this.enclosingScope = enclosingScope
-    this.id = id
+    if (this.node.id) {
+      this.name = this.node.id.name
+    } else {
+      this.name = `anonymous-${++lambdaCtr}`
+    }
   }
 
   /**
@@ -32,10 +34,10 @@ class Closure {
    *
    * @returns {Scope}
    */
-  createScope(args: any[], callExpression?: es.CallExpression): Scope {
-    const environment = this.node.params.reduce(
-      (s, p, idx) => s.set((p as es.Identifier).name, args[idx]),
-      Map<string, any>()
+  createScope(args: Value[], callExpression?: es.CallExpression): Scope {
+    const environment = {}
+    this.node.params.forEach((p, idx) =>
+      environment[(p as es.Identifier).name] = args[idx]
     )
     if (callExpression) {
       callExpression = {
@@ -51,12 +53,7 @@ class Closure {
     }
   }
 
-  /** Get name of the scope */
-  get name() {
-    return this.node.id ? this.node.id.name : `lambda_${this.id!}`
-  }
-
-  getScopeName(args: any[]) {
+  getScopeName(args: Value[]) {
     let name = `${this.name}(`
     args.forEach((arg, idx) => {
       if (arg instanceof Closure) {

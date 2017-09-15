@@ -1,11 +1,11 @@
 import * as es from 'estree'
 import { SourceLocation } from 'acorn'
 
-import { IError } from './error'
+import { SourceError } from './error'
 
 export interface Rule<T extends es.Node> {
   name: string
-  checkNodes: { [name: string]: (node: T) => IError[] }
+  checkNodes: { [name: string]: (node: T) => SourceError[] }
 }
 
 export namespace CFG {
@@ -63,7 +63,7 @@ export type HasID = {
   __id: string
 }
 
-export interface ITypeError extends IError {
+export interface TypeError extends SourceError {
   expected: CFG.Type[]
   got: CFG.Type
   proof?: es.Node
@@ -73,7 +73,7 @@ export type StaticState = {
   week: number
   parser: {
     program?: es.Program
-    errors: IError[]
+    errors: SourceError[]
     comments: Comment[]
   }
   cfg: {

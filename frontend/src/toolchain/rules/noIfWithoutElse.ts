@@ -1,10 +1,10 @@
 import { stripIndent } from 'common-tags'
 import * as es from 'estree'
 import { generate } from 'astring'
-import { IError } from '../types/error'
+import { SourceError } from '../types/error'
 import { Rule } from '../types/static'
 
-export class NoIfWithoutElseError implements IError {
+export class NoIfWithoutElseError implements SourceError {
   constructor(public node: es.IfStatement) {}
 
   get location() {

@@ -2,7 +2,7 @@ import { StaticState, CFG, anyT } from './types/static'
 
 export type Options = {
   week: number
-  externals: string[]
+  externals?: string[]
 }
 
 const defaultExternals = [
@@ -14,10 +14,9 @@ const defaultExternals = [
 ]
 
 const extraMath: string[] = []
-let objs = Object.getOwnPropertyNames(Math)
-for (let i in objs) {
-  extraMath.push('math_' + objs[i])
-}
+Object.getOwnPropertyNames(Math).forEach(name => {
+  extraMath.push('math_' + name)
+})
 
 const extraList = [
   'list',
@@ -48,7 +47,7 @@ const extraList = [
 
 export const createContext = ({ week, externals }: Options): StaticState => {
   const initialEnvironment: { [name: string]: CFG.Sym } = {}
-  externals = defaultExternals.concat(externals)
+  externals = defaultExternals.concat(externals || [])
   if (week >= 4) {
     externals = [...externals, ...extraMath, 'display', 'timed']
   }

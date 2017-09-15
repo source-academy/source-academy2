@@ -1,4 +1,4 @@
-import { IError } from '../toolchain/types/error'
+import { SourceError } from '../toolchain/types/error'
 import { Comment } from './shape'
 import * as actionTypes from './actionTypes'
 
@@ -39,7 +39,7 @@ export const evalInterpreterSuccess = (value: any) => ({
   payload: value
 })
 
-export const evalInterpreterError = (errors: IError[]) => ({
+export const evalInterpreterError = (errors: SourceError[]) => ({
   type: actionTypes.EVAL_INTERPRETER_ERROR,
   payload: errors
 })

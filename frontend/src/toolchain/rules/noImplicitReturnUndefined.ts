@@ -1,9 +1,9 @@
 import * as es from 'estree'
 import { stripIndent } from 'common-tags'
-import { IError } from '../types/error'
+import { SourceError } from '../types/error'
 import { Rule } from '../types/static'
 
-export class NoImplicitReturnUndefinedError implements IError {
+export class NoImplicitReturnUndefinedError implements SourceError {
   constructor(public node: es.ReturnStatement) {}
 
   get location() {

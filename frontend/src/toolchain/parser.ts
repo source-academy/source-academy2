@@ -4,7 +4,7 @@ import { parse as acornParse, Options as AcornOptions, Position } from 'acorn'
 import { stripIndent } from 'common-tags'
 import { simple } from 'acorn/dist/walk'
 
-import { IError } from './types/error'
+import { SourceError } from './types/error'
 import { StaticState } from './types/static'
 import syntaxTypes from './syntaxTypes'
 import { createContext } from './context'
@@ -14,7 +14,7 @@ export type ParserOptions = {
   week: number
 }
 
-export class DisallowedConstructError implements IError {
+export class DisallowedConstructError implements SourceError {
   nodeType: string
 
   constructor(public node: es.Node) {
@@ -52,7 +52,7 @@ export class DisallowedConstructError implements IError {
   }
 }
 
-export class FatalSyntaxError implements IError {
+export class FatalSyntaxError implements SourceError {
   constructor(public location: es.SourceLocation, public message: string) {}
 
   explain() {
@@ -64,7 +64,7 @@ export class FatalSyntaxError implements IError {
   }
 }
 
-export class MissingSemicolonError implements IError {
+export class MissingSemicolonError implements SourceError {
   constructor(public location: es.SourceLocation) {}
 
   explain() {
@@ -76,7 +76,7 @@ export class MissingSemicolonError implements IError {
   }
 }
 
-export class TrailingCommaError implements IError {
+export class TrailingCommaError implements SourceError {
   constructor(public location: es.SourceLocation) {}
 
   explain() {

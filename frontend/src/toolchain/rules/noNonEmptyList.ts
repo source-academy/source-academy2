@@ -1,8 +1,8 @@
 import * as es from 'estree'
-import { IError } from '../types/error'
+import { SourceError } from '../types/error'
 import { Rule } from '../types/static'
 
-export class NoNonEmptyListError implements IError {
+export class NoNonEmptyListError implements SourceError {
   constructor(public node: es.ArrayExpression) {}
 
   get location() {

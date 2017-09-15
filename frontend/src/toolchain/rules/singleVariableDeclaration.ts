@@ -1,10 +1,10 @@
 import * as es from 'estree'
 import { generate } from 'astring'
 
-import { IError } from '../types/error'
+import { SourceError } from '../types/error'
 import { Rule } from '../types/static'
 
-export class MultipleDeclarationsError implements IError {
+export class MultipleDeclarationsError implements SourceError {
   private fixs: es.VariableDeclaration[]
   constructor(public node: es.VariableDeclaration) {
     this.fixs = node.declarations.map(declaration => ({

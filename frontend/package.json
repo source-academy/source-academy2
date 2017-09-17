@@ -148,11 +148,11 @@
   "lint-staged": {
     "gitDir": "..",
     "linters": {
-      "src/**/*.js": [
+      "frontend/src/**/*.js": [
         "prettier --semi --single-quote --write",
         "git add"
       ],
-      "src/**/*.ts": [
+      "frontend/src/**/*.ts*": [
         "prettier --parser typescript --no-semi --single-quote --write",
         "git add"
       ]

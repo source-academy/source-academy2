@@ -15,4 +15,4 @@ cd ..
 MIX_ENV=prod mix do compile, phx.digest, release --env=prod
 
 # Provision App to
-scp _build/prod/rel/source_academy/releases/2.0.0/source_academy.tar.gz root@$HOST_IP:/root/
+rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" --progress _build/prod/rel/source_academy/releases/2.0.0/source_academy.tar.gz root@$HOST_IP:/root/

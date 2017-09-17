@@ -1,411 +1,348 @@
 import * as es from 'estree'
-import { generate } from 'astring'
+import {
+  Closure,
+  Frame,
+  Value,
+  Context,
+  SourceError,
+  ErrorSeverity
+} from './types'
+import { toJS } from './interop'
+import { createNode } from './utils/node'
+import * as constants from './constants'
+import * as rttc from './utils/rttc'
+import * as errors from './interpreter-errors'
 
-import { SourceError } from './types/error'
-import { Scope, InterpreterState as State, Value } from './types/dynamic'
-import Closure from './Closure'
-import stringifyValue from './utils/stringify'
-import createGlobalEnvironment from './utils/createGlobalEnvironment'
-import sourceValueToJS from './utils/sourceValueToJS'
-
-const MAX_STACK_LIMIT = 500
-const UNKNOWN_LOCATION: es.SourceLocation = {
-  start: {
-    line: -1,
-    column: -1,
-  },
-  end: {
-    line: -1,
-    column: -1
-  }
+class ReturnValue {
+  constructor(public value: Value) { }
 }
 
-export class ExceptionError implements SourceError {
-  constructor(public error: Error, public location: es.SourceLocation) {}
-
-  explain() {
-    return this.error.toString()
-  }
-
-  elaborate() {
-    return 'TODO'
-  }
+class TailCallReturnValue {
+  constructor(
+    public callee: Closure,
+    public args: Value[],
+    public node: es.CallExpression
+  ) { }
 }
 
-export class MaximumStackLimitExceeded implements SourceError {
-  location: es.SourceLocation
-
-  constructor(node: es.Node, private calls: es.CallExpression[]) {
-    this.location = node ? node.loc! : UNKNOWN_LOCATION
+const createFrame = (
+  closure: Closure,
+  args: Value[],
+  callExpression?: es.CallExpression
+): Frame => {
+  const frame: Frame = {
+    name: closure.name, // TODO: Change this
+    parent: closure.frame,
+    environment: {}
   }
-
-  explain() {
-    return `
-      Infinite recursion
-      ${generate(this.calls[0])}..${generate(this.calls[1])}..${generate(
-      this.calls[2]
-    )}..
-    `
-  }
-
-  elaborate() {
-    return 'TODO'
-  }
-}
-
-export class CallingNonFunctionValue implements SourceError {
-  location: es.SourceLocation
-
-  constructor(node: es.Node, private callee: Value) {
-    this.location = node.loc!
-  }
-
-  explain() {
-    return `Calling non-function value ${stringifyValue(this.callee)}`
-  }
-
-  elaborate() {
-    return 'TODO'
-  }
-}
-
-export class UndefinedVariable implements SourceError {
-  location: es.SourceLocation
-
-  constructor(public name: string, node: es.Node) {
-    this.location = node.loc!
-  }
-
-  explain() {
-    return `Undefined Variable ${this.name}`
-  }
-
-  elaborate() {
-    return 'TODO'
-  }
-}
-
-const stop = (state: State) => {
-  state.isRunning = false
-  return state
-}
-
-const start = (state: State) => {
-  state.isRunning = true
-  return state
-}
-
-const defineVariable = (state: State, name: string, value: any) => {
-  const currentScope = state.stack[0]
-  currentScope.environment[name] = value
-  return state
-}
-
-const popFrame = (state: State) => {
-  state.stack.shift()
-  return state
-}
-
-const pushFrame = (state: State, scope: Scope) => {
-  state.stack.unshift(scope)
-  return state
-}
-
-const getEnv = (name: string, state: State) => {
-  let idx = 0
-  let scope = state.stack[idx]
-  while (scope) {
-    if (scope.environment.hasOwnProperty(name)) {
-      return scope.environment[name]
-    } else {
-      scope = state.stack[++idx]
+  if (callExpression) {
+    frame.callExpression = {
+      ...callExpression,
+      arguments: callExpression.arguments.map(
+        a => createNode(a) as es.Expression
+      )
     }
   }
-  throw new UndefinedVariable(name, state.node!)
+  closure.node.params.forEach((param, index) => {
+    const ident = param as es.Identifier
+    frame.environment[ident.name] = args[index]
+  })
+  return frame
+}
+
+const handleError = (context: Context, error: SourceError) => {
+  context.errors.push(error)
+  if (error.severity === ErrorSeverity.ERROR) {
+    context.runtime.frames = [context.runtime.frames[0]]
+    throw error
+  } else {
+    return context
+  }
+}
+
+function defineVariable(context: Context, name: string, value: Value) {
+  const frame = context.runtime.frames[0]
+
+  if (frame.environment.hasOwnProperty(name)) {
+    handleError(
+      context,
+      new errors.VariableRedeclaration(context.runtime.nodes[0]!, name)
+    )
+  }
+
+  frame.environment[name] = value
+
+  return frame
+}
+function* visit(context: Context, node: es.Node) {
+  context.runtime.nodes.unshift(node)
+  yield context
+}
+function* leave(context: Context) {
+  context.runtime.nodes.shift()
+  yield context
+}
+const currentFrame = (context: Context) => context.runtime.frames[0]
+const replaceFrame = (context: Context, frame: Frame) =>
+  context.runtime.frames[0] = frame
+const popFrame = (context: Context) =>
+  context.runtime.frames.shift()
+const pushFrame = (context: Context, frame: Frame) =>
+  context.runtime.frames.unshift(frame)
+
+const getVariable = (context: Context, name: string) => {
+  let idx = 0
+  let frame = context.runtime.frames[idx]
+  while (frame) {
+    if (frame.environment.hasOwnProperty(name)) {
+      return frame.environment[name]
+    } else {
+      frame = context.runtime.frames[++idx]
+    }
+  }
+  handleError(
+    context,
+    new errors.UndefinedVariable(name, context.runtime.nodes[0])
+  )
+}
+
+const checkCallStackSize = (context: Context, node: es.CallExpression) => {
+  const currentStackSize = context.runtime.frames.length
+  // Check for max call stack
+  if (node && currentStackSize > constants.MAX_STACK_LIMIT) {
+    const stacks = context.runtime.frames
+      .slice(0, 3)
+      .map(s => s.callExpression as es.CallExpression)
+    const error = new errors.MaximumStackLimitExceeded(node, stacks)
+    handleError(context, error)
+  }
+}
+
+const checkNumberOfArguments = (context: Context, callee: Closure, args: Value[], exp: es.CallExpression) => {
+  if (callee.node.params.length !== args.length) {
+    const error = new errors.InvalidNumberOfArguments(
+      exp,
+      callee.node.params.length,
+      args.length
+    )
+    handleError(context, error)
+  }
+}
+
+function* getArgs(context: Context, call: es.CallExpression) {
+  const args = []
+  for (const arg of call.arguments) {
+    args.push(yield* evaluate(arg, context))
+  }
+  return args
 }
 
 export type Evaluator<T extends es.Node> = (
   node: T,
-  state: State
-) => IterableIterator<State>
+  context: Context
+) => IterableIterator<Value>
 
-export const evaluators: { [nodeType: string]: Evaluator<{}> } = {}
-const ev = evaluators
+export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
+  /** Simple Values */
+  Literal: function* (node: es.Literal, context: Context) {
+    return node.value
+  },
+  ArrayExpression: function* (node: es.ArrayExpression, context: Context) {
+    return node.elements
+  },
+  FunctionExpression: function* (node: es.FunctionExpression, context: Context) {
+    return new Closure(node, currentFrame(context))
+  },
+  Identifier: function* (node: es.Identifier, context: Context) {
+    return getVariable(context, node.name)
+  },
+  CallExpression: function* (node: es.CallExpression, context: Context) {
+    const callee = yield* evaluate(node.callee, context)
+    const args = yield* getArgs(context, node)
+    const result = yield* apply(context, callee, args, node)
+    return result
+  },
+  UnaryExpression: function* (node: es.UnaryExpression, context: Context) {
+    const value = yield* evaluate(node.argument, context)
+    if (node.operator === '!') {
+      return !value
+    } else if (node.operator === '-') {
+      return -value
+    } else {
+      return +value
+    }
+  },
+  BinaryExpression: function* (node: es.BinaryExpression, context: Context) {
+    const left = yield* evaluate(node.left, context)
+    const right = yield* evaluate(node.right, context)
 
-function* moveTo(node: es.Node, state: State) {
-  state._done = false
-  state.node = node
-  yield state
+    rttc.checkBinaryExpression(context, node.operator, left, right)
+
+    let result
+    switch (node.operator) {
+      case '+':
+        result = left + right
+        break
+      case '-':
+        result = left - right
+        break
+      case '*':
+        result = left * right
+        break
+      case '/':
+        result = left / right
+        break
+      case '%':
+        result = left % right
+        break
+      case '===':
+        result = left === right
+        break
+      case '!==':
+        result = left !== right
+        break
+      case '<=':
+        result = left <= right
+        break
+      case '<':
+        result = left < right
+        break
+      case '>':
+        result = left > right
+        break
+      case '>=':
+        result = left >= right
+        break
+      default:
+        result = undefined
+    }
+    return result
+  },
+  LogicalExpression: function* (node: es.LogicalExpression, context: Context) {
+    const left = yield* evaluate(node.left, context)
+    if ((node.operator === '&&' && left) || (node.operator === '||' && !left)) {
+      return yield* evaluate(node.right, context)
+    } else {
+      return left
+    }
+  },
+  VariableDeclaration: function* (node: es.VariableDeclaration, context: Context) {
+    const declaration = node.declarations[0]
+    const id = declaration.id as es.Identifier
+    const value = yield* evaluate(declaration.init!, context)
+    defineVariable(context, id.name, value)
+    return undefined
+  },
+  FunctionDeclaration: function* (node: es.FunctionDeclaration, context: Context) {
+    const id = node.id as es.Identifier
+    // tslint:disable-next-line:no-any
+    const closure = new Closure(node as any, currentFrame(context))
+    defineVariable(context, id.name, closure)
+    return undefined
+  },
+  IfStatement: function* (node: es.IfStatement, context: Context) {
+    const test = yield* evaluate(node.test, context)
+    if (test) {
+      return yield* evaluate(node.consequent, context)
+    } else if (node.alternate) {
+      return yield* evaluate(node.alternate, context)
+    } else {
+      return undefined
+    }
+  },
+  ExpressionStatement: function* (node: es.ExpressionStatement, context: Context) {
+    return yield* evaluate(node.expression, context)
+  },
+  ReturnStatement: function* (node: es.ReturnStatement, context: Context) {
+    if (node.argument) {
+      if (node.argument.type === 'CallExpression') {
+        const callee = yield* evaluate(node.argument.callee, context)
+        const args = yield* getArgs(context, node.argument)
+        return new TailCallReturnValue(
+          callee,
+          args,
+          node.argument
+        )
+      } else {
+        return new ReturnValue(yield* evaluate(node.argument, context))
+      }
+    } else {
+      return new ReturnValue(undefined)
+    }
+  },
+  BlockStatement: function* (node: es.BlockStatement, context: Context) {
+    let result: Value
+    for (const statement of node.body) {
+      result = yield* evaluate(statement, context)
+      if (result instanceof ReturnValue) {
+        break
+      }
+    }
+    return result
+  },
+  Program: function* (node: es.BlockStatement, context: Context) {
+    let result: Value
+    for (const statement of node.body) {
+      result = yield* evaluate(statement, context)
+      if (result instanceof ReturnValue) {
+        break
+      }
+    }
+    return result
+  }
 }
 
-function* done(node: es.Node, state: State) {
-  state._done = true
-  state.node = node
-  yield state
+export function* evaluate(node: es.Node, context: Context) {
+  yield* visit(context, node)
+  const result = yield* evaluators[node.type](node, context)
+  yield* leave(context)
+  return result
 }
 
 export function* apply(
+  context: Context,
   callee: Closure | Value,
-  args: {}[],
-  state: State,
-  node: es.CallExpression
+  args: Value[],
+  node?: es.CallExpression
 ) {
-  if (callee instanceof Closure) {
-    if (state.stack.length > MAX_STACK_LIMIT) {
-      const stacks = state.stack.slice(0, 3).map(s => s.callExpression as es.CallExpression)
-      throw new MaximumStackLimitExceeded(
-        node,
-        stacks
-      )
-    }
-    yield* moveTo(callee.node.body, state)
-    pushFrame(state, callee.createScope(args, node))
-    yield* ev.BlockStatement(callee.node.body, state)
-    popFrame(state)
-    state._isReturned = false
-    return state
-  } else if (typeof callee === 'function') {
-    let result: Value
-    try {
-      result = callee.apply(window, args.map(a => sourceValueToJS(state, a)))
-    } catch (e) {
-      // Recover from exception
-      state.stack = [state.stack[0]]
-      throw new ExceptionError(e, node.loc!)
-    }
-    state.value = result
-    return state
-  } else {
-    throw new CallingNonFunctionValue(node, callee)
-  }
-}
+  let result: Value
 
-ev.FunctionExpression = function*(node: es.FunctionExpression, state: State) {
-  yield* moveTo(node, state)
-  state.value = new Closure(node, state.stack[0])
-  yield* done(node, state)
-  return state
-}
-
-ev.Identifier = function*(node: es.Identifier, state: State) {
-  yield* moveTo(node, state)
-  state.value = getEnv(node.name, state)
-  yield* done(node, state)
-  return state
-}
-
-ev.Literal = function*(node: es.Literal, state: State) {
-  yield* moveTo(node, state)
-  state.value = node.value
-  yield* done(node, state)
-  return state
-}
-
-ev.ArrayExpression = function*(node: es.ArrayExpression, state: State) {
-  yield* moveTo(node, state)
-  state.value = node.elements
-  yield* done(node, state)
-  return state
-}
-
-ev.CallExpression = function*(node: es.CallExpression, state: State) {
-  yield* moveTo(node, state)
-
-  if (state.stack.length > MAX_STACK_LIMIT) {
-    const stacks = state.stack.slice(0, 3).map(s => generate(s.callExpression))
-    throw new MaximumStackLimitExceeded(
-      node,
-      stacks
-    )
-  }
-
-  // Evaluate Callee
-  state = yield* ev[node.callee.type](node.callee, state)
-  const callee = state.value
-
-  // Evaluate each arguments from left to right
-  const args: {}[] = []
-  for (const exp of node.arguments) {
-    state = yield* ev[exp.type](exp, state)
-    args.push(state.value)
-  }
-  state = yield* apply(callee, args, state, node)
-  yield* done(node, state)
-  return state
-}
-
-ev.UnaryExpression = function*(node: es.UnaryExpression, state: State) {
-  yield* moveTo(node, state)
-
-  // Evaluate argument
-  state = yield* ev[node.argument.type](node.argument, state)
-
-  let value
-  if (node.operator === '!') {
-    value = !state.value
-  } else if (node.operator === '-') {
-    value = -state.value
-  } else {
-    value = +state.value
-  }
-
-  yield* done(node, state)
-  return state
-}
-
-ev.BinaryExpression = function*(node: es.BinaryExpression, state: State) {
-  yield* moveTo(node, state)
-
-  state = yield* ev[node.left.type](node.left, state)
-  const left = state.value
-  state = yield* ev[node.right.type](node.right, state)
-  const right = state.value
-
-  let result
-  switch (node.operator) {
-    case '+':
-      result = left + right
-      break
-
-    case '-':
-      result = left - right
-      break
-    case '*':
-      result = left * right
-      break
-    case '/':
-      result = left / right
-      break
-    case '%':
-      result = left % right
-      break
-    case '===':
-      result = left === right
-      break
-    case '!==':
-      result = left !== right
-      break
-    case '<=':
-      result = left <= right
-      break
-    case '<':
-      result = left < right
-      break
-    case '>':
-      result = left > right
-      break
-    case '>=':
-      result = left >= right
-      break
-    default:
-      result = undefined
-  }
-
-  yield (state = state.with({ _done: true, node, value: result }))
-
-  return state
-}
-
-ev.LogicalExpression = function*(node: es.LogicalExpression, state: State) {
-  yield (state = state.with({ _done: false, node }))
-
-  state = yield* ev[node.left.type](node.left, state)
-  const left = state.value
-
-  if ((node.operator === '&&' && left) || (node.operator === '||' && !left)) {
-    state = yield* ev[node.right.type](node.right, state)
-  }
-
-  yield (state = state.with({ _done: true, node }))
-
-  return state
-}
-
-ev.ConditionalExpression = function*(node: es.ConditionalExpression, state: State) {
-  yield (state = state.with({ _done: false, node }))
-  state = yield* ev[node.test.type](node.test, state)
-
-  state = state.value
-    ? yield* ev[node.consequent.type](node.consequent, state)
-    : yield* ev[node.alternate.type](node.alternate, state)
-
-  yield (state = state.with({ _done: true, node }))
-  return state
-}
-
-ev.VariableDeclaration = function*(node: es.VariableDeclaration, state: State) {
-  const declaration = node.declarations[0]
-  const id = declaration.id as es.Identifier
-
-  state = yield* ev[declaration.init!.type](declaration.init, state)
-  state = defineVariable(state, id.name, state.value)
-  return state.with({ value: undefined })
-}
-
-ev.FunctionDeclaration = function*(node: es.FunctionDeclaration, state: State) {
-  const id = node.id as es.Identifier
-  const closure = new Closure(node as {}, state.frames.first())
-
-  state = defineVariable(state, id.name, closure)
-
-  return state.with({ value: undefined })
-}
-
-ev.IfStatement = function*(node: es.IfStatement, state: State) {
-  state = yield* ev[node.test.type](node.test, state)
-
-  if (state.value) {
-    state = yield* ev[node.consequent.type](node.consequent, state)
-  } else if (node.alternate) {
-    state = yield* ev[node.alternate.type](node.alternate, state)
-  }
-
-  return state
-}
-
-ev.ExpressionStatement = function*(node: es.ExpressionStatement, state: State) {
-  return yield* ev[node.expression.type](node.expression, state)
-}
-
-ev.ReturnStatement = function*(node: es.ReturnStatement, state: State) {
-  if (node.argument) {
-    state = yield* ev[node.argument.type](node.argument, state)
-  }
-  return state.with({ _isReturned: true })
-}
-
-ev.BlockStatement = function*(node: es.BlockStatement, state: State) {
-  for (const statement of node.body) {
-    yield (state = state.with({ _done: false, node: statement }))
-    state = yield* ev[statement.type](statement, state)
-    if (state._isReturned) {
-      break
+  while (!(result instanceof ReturnValue)) {
+    if (callee instanceof Closure) {
+      checkCallStackSize(context, node!)
+      checkNumberOfArguments(context, callee, args, node!)
+      const frame = createFrame(callee, args, node)
+      if (result instanceof TailCallReturnValue) {
+        replaceFrame(context, frame)
+      } else {
+        pushFrame(context, frame)
+      }
+      result = yield* evaluate(callee.node.body, context)
+      if (result instanceof TailCallReturnValue) {
+        callee = result.callee
+        node = result.node
+        args = result.args
+      } else if (!(result instanceof ReturnValue)) {
+        // No Return Value, set it as undefined
+        result = new ReturnValue(undefined)
+      }
+    } else if (typeof callee === 'function') {
+      try {
+        return callee.apply(null, args.map(a => toJS(a, context)))
+      } catch (e) {
+        // Recover from exception
+        context.runtime.frames = [context.runtime.frames[0]]
+        const loc = node ? node.loc! : constants.UNKNOWN_LOCATION
+        handleError(context, new errors.ExceptionError(e, loc))
+        return undefined
+      }
+    } else {
+      handleError(context, new errors.CallingNonFunctionValue(callee, node))
+      return undefined
     }
   }
-  const insideFunction = state.frames.size > 1
-  const value = insideFunction && !state._isReturned ? undefined : state.value
-  state = state.with({ value, _isReturned: state._isReturned })
-  return state
-}
-
-/**
- * Create initial interpreter with global environment.
- *
- * @returns {State}
- */
-export const createInterpreter = (
-  externals: string[],
-  week = 3
-): State => {
-  const globalEnv = createGlobalEnvironment(week)
-  for (const external of externals) {
-    globalEnv[external] = window[external]
-  }
-  return new State(globalEnv)
-}
-
-export function* evalProgram(node: es.Program, state: State) {
-  state = yield* ev.BlockStatement(node as {}, start(state))
-
-  return stop(state)
+  // Unwraps return value and release stack frame
+  result = (result as ReturnValue).value
+  popFrame(context)
+  return result
 }

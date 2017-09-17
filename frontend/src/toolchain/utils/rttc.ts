@@ -1,22 +1,22 @@
 import * as es from 'estree'
-import { TypeError } from '../types/static'
-import { Value } from '../types/dynamic'
+import { SourceError, Value, Context, ErrorSeverity,
+  ErrorType } from '../types'
 
-export class NonNumberInBinaryArithmeticExpression
-extends TypeError<es.BinaryExpression
-  > {
+class TypeError implements SourceError {
+  type: ErrorType.RUNTIME
+  severity: ErrorSeverity.WARNING
+  location: es.SourceLocation
+
   constructor(
-    node: es.BinaryExpression,
-    got: CFG.Type,
-    public leftOrRight: 'left' | 'right',
-    proof?: es.Node
-  ) {
-    super(node, [numberT], got, proof)
+    node: es.Node,
+    public context: string,
+    public expected: string,
+    public got: string) {
+    this.location = node.loc!
   }
 
   explain() {
-    return `Non-number in
-      ${this.leftOrRight} hand side of arithmetic operation.`
+    return `TypeError: Expected ${this.expected} in ${this.context}, got ${this.got}.`
   }
 
   elaborate() {
@@ -26,34 +26,66 @@ extends TypeError<es.BinaryExpression
 
 const isNumber = (v: Value) => typeof v === 'number'
 const isString = (v: Value) => typeof v === 'string'
-const isBoolean = (v: Value) => typeof v === 'boolean'
-const isStringOrNumber = (v: Value) => isNumber(v) || isString(v)
 
-const checkAddition = (left: Value, right: Value) => {
-}
-  (isNumber(left) || isString(left))
-  && (isNumber(right) || isString(right))
-
-const checkBinaryArithmetic = (left: Value, right: Value) =>
-  (isNumber(left) && isNumber(right))
-
-export const checkBinaryExpression
-  = (operator: es.BinaryOperator, left: Value, right: Value) => {
-    switch (operator) {
-      case '+':
-        return checkAddition(left, right)
-      case '-':
-      case '*':
-      case '/':
-      case '%':
-        return checkBinaryArithmetic(left, right)
-      case '<':
-      case '<=':
-      case '>':
-      case '>=':
-        return checkComparison(left, right)
-      case '!==':
-      default:
-      return checkBinaryArithmetic(left, right)
-    }
+const checkAdditionAndComparison = (context: Context, left: Value, right: Value) => {
+  if (!(isNumber(left) || isString(left))) {
+    context.errors.push(new TypeError(
+      context.runtime.nodes[0],
+      'left hand side of operation',
+      'number or string',
+      typeof left
+    ))
   }
+  if (!(isNumber(right) || isString(right))) {
+    context.errors.push(new TypeError(
+      context.runtime.nodes[0],
+      'right hand side of operation',
+      'number or string',
+      typeof right
+    ))
+  }
+}
+
+const checkBinaryArithmetic = (context: Context, left: Value, right: Value) => {
+  if (!isNumber(left)) {
+    context.errors.push(new TypeError(
+      context.runtime.nodes[0],
+      'left hand side of operation',
+      'number',
+      typeof left
+    ))
+  }
+  if (!isNumber(left)) {
+    context.errors.push(new TypeError(
+      context.runtime.nodes[0],
+      'right hand side of operation',
+      'number',
+      typeof right
+    ))
+  }
+}
+
+export const checkBinaryExpression = (
+  context: Context,
+  operator: es.BinaryOperator,
+  left: Value,
+  right: Value
+) => {
+  switch (operator) {
+    case '-':
+    case '*':
+    case '/':
+    case '%':
+      return checkBinaryArithmetic(context, left, right)
+    case '<':
+    case '<=':
+    case '>':
+    case '>=':
+    case '+':
+      return checkAdditionAndComparison(context, left, right)
+    case '!==':
+    case '===':
+    default:
+      return
+  }
+}

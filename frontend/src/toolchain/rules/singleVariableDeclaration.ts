@@ -1,11 +1,13 @@
 import * as es from 'estree'
 import { generate } from 'astring'
 
-import { SourceError } from '../types/error'
-import { Rule } from '../types/static'
+import { SourceError, Rule, ErrorSeverity, ErrorType } from '../types'
 
 export class MultipleDeclarationsError implements SourceError {
+  type = ErrorType.SYNTAX
+  severity = ErrorSeverity.ERROR
   private fixs: es.VariableDeclaration[]
+
   constructor(public node: es.VariableDeclaration) {
     this.fixs = node.declarations.map(declaration => ({
       type: 'VariableDeclaration' as 'VariableDeclaration',
@@ -36,7 +38,7 @@ export class MultipleDeclarationsError implements SourceError {
 const singleVariableDeclaration: Rule<es.VariableDeclaration> = {
   name: 'single-variable-declaration',
 
-  checkNodes: {
+  checkers: {
     VariableDeclaration(node: es.VariableDeclaration) {
       if (node.declarations.length > 1) {
         return [new MultipleDeclarationsError(node)]

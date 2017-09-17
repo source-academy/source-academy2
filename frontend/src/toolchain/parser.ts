@@ -1,13 +1,9 @@
-/// <reference path='parser.d.ts' />
 import * as es from 'estree'
 import { parse as acornParse, Options as AcornOptions, Position } from 'acorn'
 import { stripIndent } from 'common-tags'
 import { simple } from 'acorn/dist/walk'
-
-import { SourceError } from './types/error'
-import { StaticState } from './types/static'
+import { SourceError, ErrorType, ErrorSeverity, Context } from './types'
 import syntaxTypes from './syntaxTypes'
-import { createContext } from './context'
 import rules from './rules'
 
 export type ParserOptions = {
@@ -15,6 +11,8 @@ export type ParserOptions = {
 }
 
 export class DisallowedConstructError implements SourceError {
+  type = ErrorType.SYNTAX
+  severity = ErrorSeverity.ERROR
   nodeType: string
 
   constructor(public node: es.Node) {
@@ -53,6 +51,8 @@ export class DisallowedConstructError implements SourceError {
 }
 
 export class FatalSyntaxError implements SourceError {
+  type = ErrorType.SYNTAX
+  severity = ErrorSeverity.ERROR
   constructor(public location: es.SourceLocation, public message: string) {}
 
   explain() {
@@ -65,6 +65,8 @@ export class FatalSyntaxError implements SourceError {
 }
 
 export class MissingSemicolonError implements SourceError {
+  type = ErrorType.SYNTAX
+  severity = ErrorSeverity.ERROR
   constructor(public location: es.SourceLocation) {}
 
   explain() {
@@ -77,6 +79,8 @@ export class MissingSemicolonError implements SourceError {
 }
 
 export class TrailingCommaError implements SourceError {
+  type: ErrorType.SYNTAX
+  severity: ErrorSeverity.WARNING
   constructor(public location: es.SourceLocation) {}
 
   explain() {
@@ -107,11 +111,11 @@ function compose<T extends es.Node, S>(
 }
 
 const walkers: {
-  [name: string]: (node: es.Node, state: StaticState) => void
+  [name: string]: (node: es.Node, context: Context) => void
 } = {}
 
 for (const type of Object.keys(syntaxTypes)) {
-  walkers[type] = (node: es.Node, state: StaticState) => {
+  walkers[type] = (node: es.Node, context: Context) => {
     const id = freshId()
     Object.defineProperty(node, '__id', {
       enumerable: true,
@@ -119,78 +123,77 @@ for (const type of Object.keys(syntaxTypes)) {
       writable: false,
       value: id
     })
-    state.cfg.nodes[id] = {
+    context.cfg.nodes[id] = {
       id,
       node,
       scope: undefined,
       usages: []
     }
-    state.cfg.edges[id] = []
-    if (syntaxTypes[node.type] > state.week) {
-      state.parser.errors.push(new DisallowedConstructError(node))
+    context.cfg.edges[id] = []
+    if (syntaxTypes[node.type] > context.week) {
+      context.errors.push(new DisallowedConstructError(node))
     }
   }
 }
 
-const createAcornParserOptions = (state: StaticState): AcornOptions => ({
+const createAcornParserOptions = (context: Context): AcornOptions => ({
   sourceType: 'script',
   ecmaVersion: 5,
   locations: true,
+  // tslint:disable-next-line:no-any
   onInsertedSemicolon(end: any, loc: any) {
-    state.parser.errors.push(
+    context.errors.push(
       new MissingSemicolonError({
         end: { line: loc.line, column: loc.column + 1 },
         start: loc
       })
     )
   },
+  // tslint:disable-next-line:no-any
   onTrailingComma(end: any, loc: Position) {
-    state.parser.errors.push(
+    context.errors.push(
       new TrailingCommaError({
         end: { line: loc.line, column: loc.column + 1 },
         start: loc
       })
     )
-  },
-  onComment: state.parser.comments
+  }
 })
 
 rules.forEach(rule => {
-  const keys = Object.keys(rule.checkNodes)
+  const keys = Object.keys(rule.checkers)
   keys.forEach(key => {
-    walkers[key] = compose(walkers[key], (node, state) => {
-      const checker = rule.checkNodes[key]
+    walkers[key] = compose(walkers[key], (node, context) => {
+      const checker = rule.checkers[key]
       const errors = checker(node)
-      if (errors.length > 0) {
-        state.parser.errors = state.parser.errors.concat(errors)
-      }
+      errors.forEach(e => context.errors.push(e))
     })
   })
 })
 
-export const parse = (source: string, state: StaticState | number) => {
-  if (typeof state === 'number') {
-    state = createContext({
-      week: state,
-      externals: []
-    })
-  }
+export const parse = (source: string, context: Context) => {
+  let program: es.Program | undefined = undefined
   try {
-    const program = acornParse(source, createAcornParserOptions(state))
-    state.parser.program = program
-    state.cfg.scopes[0].node = program
-    simple(program, walkers, undefined, state)
+    program = acornParse(source, createAcornParserOptions(context))
+    simple(program, walkers, undefined, context)
   } catch (error) {
     if (error instanceof SyntaxError) {
+      // tslint:disable-next-line:no-any
       const loc = (error as any).loc
       const location = {
         start: { line: loc.line, column: loc.column },
         end: { line: loc.line, column: loc.column + 1 }
       }
-      state.parser.errors.push(new FatalSyntaxError(location, error.toString()))
+      context.errors.push(new FatalSyntaxError(location, error.toString()))
     } else {
       throw error
     }
   }
-  return state
+  const hasErrors = context.errors.find(m => m.severity === ErrorSeverity.ERROR)
+  if (program && !hasErrors) {
+    // context.cfg.scopes[0].node = program
+    return program
+  } else {
+    return undefined
+  }
 }

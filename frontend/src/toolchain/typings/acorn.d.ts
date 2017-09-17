@@ -5,7 +5,7 @@ declare module 'acorn/dist/walk' {
     export type SimpleWalker<S> = (node: es.Node, state?: S) => void
     export type SimpleWalkers<S> = { [name: string]: SimpleWalker<S> }
     export type Walker<T extends es.Node, S> = (
-      node: T & { __id: string },
+      node: T,
       state: S,
       callback: SimpleWalker<S>
     ) => void

@@ -1,11 +1,12 @@
+// tslint:disable:no-any
 import { compressToEncodedURIComponent } from 'lz-string'
 import { stringify } from 'query-string'
-import { eventChannel, SagaIterator, delay } from 'redux-saga'
+import { SagaIterator, delay } from 'redux-saga'
 import { takeEvery, select, call, put } from 'redux-saga/effects'
 
 import { showSuccessMessage } from '../notification'
 import { Shape } from '../shape'
-import { createSession } from '../../toolchain/session'
+import { Context, Result, createContext, runInContext } from '../../toolchain'
 
 import * as actionTypes from '../actionTypes'
 import * as actions from '../actions'
@@ -15,16 +16,16 @@ import api, { exactApi } from '../api'
 function* syncURL(action: any) {
   let lz = yield select((state: Shape) => state.editor.value)
   lz = compressToEncodedURIComponent(lz)
-  const read_only = yield select((state: Shape) => state.config.isReadOnly)
+  const readOnly = yield select((state: Shape) => state.config.isReadOnly)
   const filename = yield select((state: Shape) => state.config.filename)
   const library = yield select((state: Shape) => state.config.library)
   const hash = stringify({
     lz,
-    read_only,
+    read_only: readOnly,
     filename,
     library: library.title
   })
-  history.replaceState(undefined, undefined as any, `#${hash}`)
+  history.replaceState(undefined, '', `#${hash}`)
   if (action.type === actionTypes.SET_LIBRARY) {
     location.reload()
   }
@@ -42,71 +43,57 @@ function* syncURLSaga(): SagaIterator {
   )
 }
 
-async function postComment(content: string, code_id: string) {
+async function postComment(content: string, codeID: string) {
   const { data: comment } = await api.post('/comments', {
-    code_id,
+    code_id: codeID,
     content
   })
   return comment
 }
 
-function interpreterChan(session: any) {
-  return eventChannel(emitter => {
-    session.on('start', () => {
-      session.untilEnd()
-    })
-    session.on('errors', (errors: any[]) => {
-      emitter(actions.evalInterpreterError(errors))
-    })
-    session.on('done', () => {
-      if (session.interpreter && session.interpreter.errors.size === 0) {
-        const value = session.interpreter.value
-        emitter(actions.evalInterpreterSuccess(value))
-      }
-    })
-    return () => {}
-  })
-}
-
 function* interpreterSaga(): SagaIterator {
-  const library = yield select((state: Shape) => state.config.library)
-  const session = createSession(library.week, library.externals)
-  const chan = yield call(interpreterChan, session)
+  let library = yield select((state: Shape) => state.config.library)
+  let context: Context
 
   yield takeEvery(actionTypes.EVAL_EDITOR, function*() {
     const code = yield select((state: Shape) => state.editor.value)
-    session.start(code)
+    context = createContext(library.week, library.externals)
+    const result: Result = yield call(runInContext, code, context)
+    if (result.status === 'finished') {
+      yield put(actions.evalInterpreterSuccess(result.value))
+    } else {
+      yield put(actions.evalInterpreterError(context.errors))
+    }
   })
 
   yield takeEvery(actionTypes.SET_LIBRARY_SUCCESS, function*() {
     yield put(actions.clearInterpreter())
-    const library = yield select((state: Shape) => state.config.library)
+    library = yield select((state: Shape) => state.config.library)
     library.globals.forEach((p: any) => {
       const [key, value] = p
       window[key] = value
     })
-    session.week = library.week
-    session.externals = library.externals
-    session.clear()
+    context = createContext(library.week, library.externals)
   })
 
-  yield takeEvery(actionTypes.EVAL_INTERPRETER, function*(action) {
+  yield takeEvery(actionTypes.EVAL_INTERPRETER, function*(action: any) {
     const code = (action as any).payload
-    if (!session.interpreter) {
-      return session.start(code)
+    if (!context) {
+      context = createContext(library.week, library.externals)
+    }
+    const result: Result = yield call(runInContext, code, context)
+    if (result.status === 'finished') {
+      yield put(actions.evalInterpreterSuccess(result.value))
     } else {
-      return session.addCode(code)
+      console.log(context.errors)
+      yield put(actions.evalInterpreterError(context.errors))
     }
   })
 
-  yield takeEvery(actionTypes.SET_LIBRARY, function*(action) {
-    const library = yield select((state: Shape) => state.config.library)
+  yield takeEvery(actionTypes.SET_LIBRARY, function*() {
+    library = yield select((state: Shape) => state.config.library)
     yield call(loadLibrary, library)
     yield put(actions.setLibrarySuccess())
-  })
-
-  yield takeEvery(chan, function*(value) {
-    yield put(value)
   })
 }
 
@@ -124,10 +111,8 @@ function* editorSaga() {
     const action = yield select((state: Shape) => state.config.saveAction)
     if (action) {
       const content = yield select((state: Shape) => state.editor.value)
-      try {
-        yield call(exactApi.put, action, { content: content })
-        yield put(actions.saveEditorSuccess())
-      } catch (e) {}
+      yield call(exactApi.put, action, { content: content })
+      yield put(actions.saveEditorSuccess())
     }
   })
   yield takeEvery(actionTypes.SAVE_EDITOR_SUCCESS, function*() {

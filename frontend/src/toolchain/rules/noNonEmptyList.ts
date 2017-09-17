@@ -1,8 +1,11 @@
 import * as es from 'estree'
-import { SourceError } from '../types/error'
-import { Rule } from '../types/static'
+
+import { SourceError, Rule, ErrorSeverity, ErrorType } from '../types'
 
 export class NoNonEmptyListError implements SourceError {
+  type = ErrorType.SYNTAX
+  severity = ErrorSeverity.ERROR
+
   constructor(public node: es.ArrayExpression) {}
 
   get location() {
@@ -21,7 +24,7 @@ export class NoNonEmptyListError implements SourceError {
 const noNonEmptyList: Rule<es.ArrayExpression> = {
   name: 'no-non-empty-list',
 
-  checkNodes: {
+  checkers: {
     ArrayExpression(node: es.ArrayExpression) {
       if (node.elements.length > 0) {
         return [new NoNonEmptyListError(node)]

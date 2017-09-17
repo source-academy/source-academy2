@@ -4,7 +4,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { Button, Intent } from '@blueprintjs/core'
 import { connect } from 'react-redux'
 
-import stringify from '../../toolchain/utils/stringify'
+import { toString } from '../../toolchain/interop'
 import CanvasOutput from './CanvasOutput'
 
 import * as actions from '../actions'
@@ -77,7 +77,7 @@ const InterpreterOutput: React.StatelessComponent<InterpreterOutputProps> = ({
       return (
         <pre className="value">
           <code>
-            {stringify(value)}
+            {toString(value)}
           </code>
         </pre>
       )

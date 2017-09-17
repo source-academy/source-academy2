@@ -1,11 +1,13 @@
-
 const renderMarkdownWithoutLatex = async (markdown: string) => {
   const marked = await import(/** webpackChunkName: "marked" */ 'marked')
   const html = marked(markdown)
   return html
 }
 
-export const renderMarkdownWithLatex = async (container: HTMLElement, content?: string) => {
+export const renderMarkdownWithLatex = async (
+  container: HTMLElement,
+  content?: string
+) => {
   const marked = await import(/** webpackChunkName: "marked" */ 'marked')
   content = content || container.innerHTML
   marked.setOptions({
@@ -22,13 +24,10 @@ export const renderMarkdownWithLatex = async (container: HTMLElement, content?: 
   container.innerHTML = content
   const done = () => {
     let text = container.innerHTML
-    text = text.replace(/^&gt;/mg, '>')
+    text = text.replace(/^&gt;/gm, '>')
     container.innerHTML = marked(text)
   }
-  MathJax.Callback.Queue(
-    ["Typeset", MathJax.Hub, container],
-    [done]
-  )
+  MathJax.Callback.Queue(['Typeset', MathJax.Hub, container], [done])
 }
 
 export default renderMarkdownWithoutLatex

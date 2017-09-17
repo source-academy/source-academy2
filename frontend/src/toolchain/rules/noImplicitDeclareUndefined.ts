@@ -1,9 +1,11 @@
 import * as es from 'estree'
 import { stripIndent } from 'common-tags'
-import { SourceError } from '../types/error'
-import { Rule } from '../types/static'
+
+import { SourceError, Rule, ErrorSeverity, ErrorType } from '../types'
 
 export class NoImplicitDeclareUndefinedError implements SourceError {
+  type = ErrorType.SYNTAX
+  severity = ErrorSeverity.ERROR
   constructor(public node: es.Identifier) {}
 
   get location() {
@@ -29,7 +31,7 @@ export class NoImplicitDeclareUndefinedError implements SourceError {
 const noImplicitDeclareUndefined: Rule<es.VariableDeclaration> = {
   name: 'no-implicit-declare-undefined',
 
-  checkNodes: {
+  checkers: {
     VariableDeclaration(node: es.VariableDeclaration) {
       const errors: SourceError[] = []
       for (const decl of node.declarations) {

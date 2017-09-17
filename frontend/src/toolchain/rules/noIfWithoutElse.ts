@@ -1,10 +1,12 @@
 import { stripIndent } from 'common-tags'
 import * as es from 'estree'
 import { generate } from 'astring'
-import { SourceError } from '../types/error'
-import { Rule } from '../types/static'
+
+import { SourceError, Rule, ErrorSeverity, ErrorType } from '../types'
 
 export class NoIfWithoutElseError implements SourceError {
+  type = ErrorType.SYNTAX
+  severity = ErrorSeverity.ERROR
   constructor(public node: es.IfStatement) {}
 
   get location() {
@@ -29,7 +31,7 @@ export class NoIfWithoutElseError implements SourceError {
 const noIfWithoutElse: Rule<es.IfStatement> = {
   name: 'no-if-without-else',
 
-  checkNodes: {
+  checkers: {
     IfStatement(node: es.IfStatement) {
       if (!node.alternate) {
         return [new NoIfWithoutElseError(node)]

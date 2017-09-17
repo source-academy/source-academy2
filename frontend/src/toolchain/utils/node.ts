@@ -2,10 +2,8 @@
  * Utility functions to work with the AST (Abstract Syntax Tree)
  */
 import * as es from 'estree'
-import { Walker } from 'acorn/dist/walk'
-
-import { HasID } from './types/static'
-import Closure from './Closure'
+import { Walker, SimpleWalker } from 'acorn/dist/walk'
+import { Closure, Value } from '../types'
 
 /**
  * Check whether two nodes are equal.
@@ -18,12 +16,12 @@ import Closure from './Closure'
  */
 export const isNodeEqual = (n1: es.Node, n2: es.Node) => {
   if (n1.hasOwnProperty('__id') && n2.hasOwnProperty('__id')) {
-    const first = (n1 as any).__id === (n2 as any).__id
+    const first = n1.__id === n2.__id
     if (!first) {
       return false
     }
     if (n1.hasOwnProperty('__call') && n2.hasOwnProperty('__call')) {
-      return (n1 as any).__call === (n2 as any).__call
+      return n1.__call === n2.__call
     } else {
       return true
     }
@@ -39,10 +37,10 @@ export const isNodeEqual = (n1: es.Node, n2: es.Node) => {
  * @param before Node to be replaced
  * @param after Replacement node
  */
-export const replace = (node: es.Node, before: es.Node, after: es.Node) => {
+export const replaceAST = (node: es.Node, before: es.Node, after: es.Node) => {
   let found = false
 
-  const go = (n: es.Node): any => {
+  const go = (n: es.Node): {} => {
     if (found) {
       return n
     }
@@ -76,20 +74,20 @@ export const replace = (node: es.Node, before: es.Node, after: es.Node) => {
   return go(node)
 }
 
-const mkLiteralNode = (value: any): es.Node => {
+const createLiteralNode = (value: {}): es.Node => {
   if (typeof value === 'undefined') {
     return {
       type: 'Identifier',
       name: 'undefined',
       __id: freshId()
-    } as any
+    }
   } else {
     return {
       type: 'Literal',
       value,
       raw: value,
       __id: freshId()
-    } as any
+    }
   }
 }
 
@@ -108,18 +106,18 @@ const freshId = (() => {
  * @param value any valid Source value (number/string/boolean/Closure)
  * @returns {Node}
  */
-export const createNode = (value: any): es.Node => {
+export const createNode = (value: Value): es.Node => {
   if (value instanceof Closure) {
     return value.node
   }
-  return mkLiteralNode(value)
+  return createLiteralNode(value)
 }
 
-export const compose = <S, T extends es.Node & HasID>(
+export const composeWalker = <S, T extends es.Node>(
   w1: Walker<T, S>,
   w2: Walker<T, S>
 ) => {
-  return (node: T, state: S, recurse: any) => {
+  return (node: T, state: S, recurse: SimpleWalker<S>) => {
     w1(node, state, recurse)
     w2(node, state, recurse)
   }

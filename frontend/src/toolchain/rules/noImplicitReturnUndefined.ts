@@ -1,9 +1,12 @@
 import * as es from 'estree'
 import { stripIndent } from 'common-tags'
-import { SourceError } from '../types/error'
-import { Rule } from '../types/static'
+
+import { SourceError, Rule, ErrorSeverity, ErrorType } from '../types'
 
 export class NoImplicitReturnUndefinedError implements SourceError {
+  type = ErrorType.SYNTAX
+  severity = ErrorSeverity.ERROR
+
   constructor(public node: es.ReturnStatement) {}
 
   get location() {
@@ -27,7 +30,7 @@ export class NoImplicitReturnUndefinedError implements SourceError {
 const noImplicitReturnUndefined: Rule<es.ReturnStatement> = {
   name: 'no-implicit-return-undefined',
 
-  checkNodes: {
+  checkers: {
     ReturnStatement(node: es.ReturnStatement) {
       if (!node.argument) {
         return [new NoImplicitReturnUndefinedError(node)]

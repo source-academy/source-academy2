@@ -1,8 +1,11 @@
 import * as es from 'estree'
-import { SourceError } from '../types/error'
-import { Rule } from '../types/static'
+
+import { SourceError, Rule, ErrorSeverity, ErrorType } from '../types'
 
 export class StrictEqualityError implements SourceError {
+  type = ErrorType.SYNTAX
+  severity = ErrorSeverity.ERROR
+
   constructor(public node: es.BinaryExpression) {}
 
   get location() {
@@ -25,7 +28,7 @@ export class StrictEqualityError implements SourceError {
 const strictEquality: Rule<es.BinaryExpression> = {
   name: 'strict-equality',
 
-  checkNodes: {
+  checkers: {
     BinaryExpression(node: es.BinaryExpression) {
       if (node.operator === '==' || node.operator === '!=') {
         return [new StrictEqualityError(node)]

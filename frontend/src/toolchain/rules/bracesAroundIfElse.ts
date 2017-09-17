@@ -1,13 +1,16 @@
 import * as es from 'estree'
 import { generate } from 'astring'
 import { stripIndent } from 'common-tags'
-import { SourceError } from '../types/error'
-import { Rule } from '../types/static'
+
+import { SourceError, Rule, ErrorSeverity, ErrorType } from '../types'
 
 export class BracesAroundIfElseError implements SourceError {
+  type = ErrorType.SYNTAX
+  severity = ErrorSeverity.ERROR
+
   constructor(
     public node: es.IfStatement,
-    public type: 'consequent' | 'alternate'
+    private branch: 'consequent' | 'alternate'
   ) {}
 
   get location() {
@@ -15,7 +18,7 @@ export class BracesAroundIfElseError implements SourceError {
   }
 
   explain() {
-    if (this.type === 'consequent') {
+    if (this.branch === 'consequent') {
       return 'Missing curly braces around "if" block'
     } else {
       return 'Missing curly braces around "else" block'
@@ -26,7 +29,7 @@ export class BracesAroundIfElseError implements SourceError {
     let ifOrElse
     let header
     let body
-    if (this.type === 'consequent') {
+    if (this.branch === 'consequent') {
       ifOrElse = 'if'
       header = `if (${generate(this.node.test)})`
       body = this.node.consequent
@@ -71,7 +74,7 @@ export class BracesAroundIfElseError implements SourceError {
 const bracesAroundIfElse: Rule<es.IfStatement> = {
   name: 'braces-around-if-else',
 
-  checkNodes: {
+  checkers: {
     IfStatement(node: es.IfStatement) {
       const errors: SourceError[] = []
       if (node.consequent && node.consequent.type !== 'BlockStatement') {

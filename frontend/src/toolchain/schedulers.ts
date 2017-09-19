@@ -1,5 +1,4 @@
 import { Scheduler, Value, Context, Result } from './types'
-import { InterruptedError } from './interpreter-errors'
 
 export class AsyncScheduler implements Scheduler {
   run(it: IterableIterator<Value>, context: Context): Promise<Result> {
@@ -9,11 +8,6 @@ export class AsyncScheduler implements Scheduler {
       try {
         while (!itValue.done) {
           itValue = it.next()
-          // Interrupted
-          if (!context.runtime.isRunning) {
-            context.errors.push(new InterruptedError(context.runtime.nodes[0]))
-            resolve({ status: 'error' })
-          }
         }
       } catch (e) {
         resolve({ status: 'error' })

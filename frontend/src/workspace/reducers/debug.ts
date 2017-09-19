@@ -15,6 +15,7 @@ const debugReducer: Reducer<DebugState> = (state = init, action) => {
         ...state,
         isRunning: true
       }
+    case actionTypes.INTERRUPT_EXECUTION:
     case actionTypes.EVAL_INTERPRETER_SUCCESS:
     case actionTypes.EVAL_INTERPRETER_ERROR:
       return {

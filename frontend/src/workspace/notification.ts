@@ -11,3 +11,11 @@ export const showSuccessMessage = (message: string, timeout = 500) => {
     timeout
   })
 }
+
+export const showWarningMessage = (message: string, timeout = 500) => {
+  notification.show({
+    intent: Intent.WARNING,
+    message,
+    timeout
+  })
+}

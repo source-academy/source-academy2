@@ -4,10 +4,9 @@ import { stringify } from 'query-string'
 import { SagaIterator, delay } from 'redux-saga'
 import { takeEvery, select, call, put, take, race } from 'redux-saga/effects'
 
-import { showSuccessMessage } from '../notification'
+import { showSuccessMessage, showWarningMessage } from '../notification'
 import { Shape } from '../shape'
-import { Context, Result, createContext, runInContext,
-  interrupt } from '../../toolchain'
+import { Context, createContext, runInContext, interrupt } from '../../toolchain'
 
 import * as actionTypes from '../actionTypes'
 import * as actions from '../actions'
@@ -65,7 +64,7 @@ function* evalCode(code: string, context: Context) {
     }
   } else if (interrupted) {
     interrupt(context)
-    yield put(actions.evalInterpreterError(context.errors))
+    yield call(showWarningMessage, 'Execution aborted by user')
   }
 }
 

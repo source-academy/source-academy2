@@ -4,6 +4,24 @@ import { Value, SourceError, ErrorType, ErrorSeverity } from './types'
 import { toString } from './interop'
 import { UNKNOWN_LOCATION } from './constants'
 
+export class InterruptedError implements SourceError {
+  type = ErrorType.RUNTIME
+  severity = ErrorSeverity.ERROR
+  location: es.SourceLocation
+
+  constructor(node: es.Node) {
+    this.location = node.loc!
+  }
+
+  explain() {
+    return 'Execution aborted by user.'
+  }
+
+  elaborate() {
+    return 'TODO'
+  }
+}
+
 export class ExceptionError implements SourceError {
   type = ErrorType.RUNTIME
   severity = ErrorSeverity.ERROR

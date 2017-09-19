@@ -6,6 +6,7 @@ import editor from './editor'
 import comments from './comments'
 import mcqQuestion from './mcqQuestion'
 import programmingQuestion from './programmingQuestion'
+import debug from './debug'
 
 export default combineReducers({
   config,
@@ -13,5 +14,6 @@ export default combineReducers({
   editor,
   comments,
   mcqQuestion,
-  programmingQuestion
+  programmingQuestion,
+  debug
 })

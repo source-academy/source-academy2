@@ -86,3 +86,7 @@ export const selectChoiceSuccess = (payload: any) => ({
   type: actionTypes.SELECT_CHOICE_SUCCESS,
   payload
 })
+
+export const interruptExecution = () => ({
+  type: actionTypes.INTERRUPT_EXECUTION
+})

@@ -82,6 +82,11 @@ export type EditorState = {
   value: string
 }
 
+export type DebugState = {
+  isRunning: boolean
+  elapsed: number
+}
+
 export type Comment = {
   id: number
   content: string
@@ -115,4 +120,5 @@ export type Shape = {
   editor: EditorState
   comments: CommentState
   mcqQuestion: MCQQuestion
+  debug: DebugState
 }

@@ -53,7 +53,8 @@ const createFrame = (
 const handleError = (context: Context, error: SourceError) => {
   context.errors.push(error)
   if (error.severity === ErrorSeverity.ERROR) {
-    context.runtime.frames = [context.runtime.frames[0]]
+    const globalFrame = context.runtime.frames[context.runtime.frames.length - 1]
+    context.runtime.frames = [globalFrame]
     throw error
   } else {
     return context
@@ -91,13 +92,12 @@ const pushFrame = (context: Context, frame: Frame) =>
   context.runtime.frames.unshift(frame)
 
 const getVariable = (context: Context, name: string) => {
-  let idx = 0
-  let frame = context.runtime.frames[idx]
+  let frame: Frame | null = context.runtime.frames[0]
   while (frame) {
     if (frame.environment.hasOwnProperty(name)) {
       return frame.environment[name]
     } else {
-      frame = context.runtime.frames[++idx]
+      frame = frame.parent
     }
   }
   handleError(
@@ -218,6 +218,9 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     }
     return result
   },
+  ConditionalExpression: function* (node: es.ConditionalExpression, context: Context) {
+    return yield* this.IfStatement(node, context)
+  },
   LogicalExpression: function* (node: es.LogicalExpression, context: Context) {
     const left = yield* evaluate(node.left, context)
     if ((node.operator === '&&' && left) || (node.operator === '||' && !left)) {
@@ -306,6 +309,7 @@ export function* apply(
   node?: es.CallExpression
 ) {
   let result: Value
+  let total = 0
 
   while (!(result instanceof ReturnValue)) {
     if (callee instanceof Closure) {
@@ -316,6 +320,7 @@ export function* apply(
         replaceFrame(context, frame)
       } else {
         pushFrame(context, frame)
+        total++
       }
       result = yield* evaluate(callee.node.body, context)
       if (result instanceof TailCallReturnValue) {
@@ -328,21 +333,28 @@ export function* apply(
       }
     } else if (typeof callee === 'function') {
       try {
-        return callee.apply(null, args.map(a => toJS(a, context)))
+        result = callee.apply(null, args.map(a => toJS(a, context)))
+        break
       } catch (e) {
         // Recover from exception
-        context.runtime.frames = [context.runtime.frames[0]]
+        const globalFrame = context.runtime.frames[context.runtime.frames.length - 1]
+        context.runtime.frames = [globalFrame]
         const loc = node ? node.loc! : constants.UNKNOWN_LOCATION
         handleError(context, new errors.ExceptionError(e, loc))
-        return undefined
+        result = undefined
       }
     } else {
       handleError(context, new errors.CallingNonFunctionValue(callee, node))
-      return undefined
+      result = undefined
+      break
     }
   }
   // Unwraps return value and release stack frame
-  result = (result as ReturnValue).value
-  popFrame(context)
+  if (result instanceof ReturnValue) {
+    result = result.value
+  }
+  for (let i = 1; i <= total; i++) {
+    popFrame(context)
+  }
   return result
 }

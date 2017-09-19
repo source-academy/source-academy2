@@ -14,6 +14,7 @@ process.on('unhandledRejection', err => {
 require('../config/env');
 
 const path = require('path');
+const rimraf = require('rimraf')
 const chalk = require('chalk');
 const fs = require('fs-extra');
 const webpack = require('webpack');
@@ -38,6 +39,9 @@ if (!checkRequiredFiles([paths.appIndexJs])) {
 // This lets us display how much they changed later.
 measureFileSizesBeforeBuild(paths.appBuild)
   .then(previousFileSizes => {
+    // Cleanup the build directory
+    rimraf.sync(paths.appBuild)
+    fs.mkdirSync(paths.appBuild)
     // Start the webpack build
     return build(previousFileSizes);
   })

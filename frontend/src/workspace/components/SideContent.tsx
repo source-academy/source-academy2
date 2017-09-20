@@ -10,6 +10,7 @@ export type OwnProps = {
   question: React.ReactElement<any> | JSX.Element
   comments: React.ReactElement<any> | JSX.Element
   listVisualizer: React.ReactElement<any> | JSX.Element
+  toneMatrix: React.ReactElement<any> | JSX.Element
 }
 
 export type Props = OwnProps & {
@@ -25,7 +26,8 @@ const TAB_ICONS: {[tab:string]: string} = {
   comments: IconClasses.COMMENT,
   tests: IconClasses.COMPARISON,
   grading: IconClasses.SAVED,
-  list_visualizer: IconClasses.EYE_OPEN
+  list_visualizer: IconClasses.EYE_OPEN,
+  tone_matrix: IconClasses.GRID_VIEW
 }
 
 const mapDispatchToProps = (dispatch: Dispatch<Shape>) =>
@@ -56,6 +58,9 @@ const getTabs = ({ isPlayground, assessmentType, activeTab, setActiveTab }: Prop
   if (window.ListVisualizer) {
     extraTabs.push('list_visualizer')
   }
+  if (window.ToneMatrix) {
+    extraTabs.push('tone_matrix')
+  }
   const tabs = baseTabs.concat(extraTabs)
   return tabs.map(key =>
     <Button
@@ -78,6 +83,9 @@ const getBody = (props: Props) => {
       break
     case 'list_visualizer':
       body = props.listVisualizer
+      break
+    case 'tone_matrix':
+      body = props.toneMatrix
       break
     default:
       body = props.question

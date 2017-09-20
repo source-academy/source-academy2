@@ -9,6 +9,7 @@ import Question from './Question'
 import Comments from './Comments'
 import PlaygroundControl from './PlaygroundControl'
 import ListVisualizer from './ListVisualizer'
+import ToneMatrix from './ToneMatrix'
 
 export type OwnProps = {}
 export type Props = OwnProps & {
@@ -66,12 +67,14 @@ const ProgrammingWorkspace: React.StatelessComponent<Props> = props => {
   const comments = <Comments />
   const editor = <Editor />
   const listVisualizer = window.ListVisualizer ? <ListVisualizer /> : <div />
+  const toneMatrix = window.ToneMatrix ? <ToneMatrix /> : <div />
   const side = (
     <SideContent
       interpreter={interpreter}
       question={question}
       comments={comments}
       listVisualizer={listVisualizer}
+      toneMatrix={toneMatrix}
     />
   )
   const body = getBody(props, editor, side)

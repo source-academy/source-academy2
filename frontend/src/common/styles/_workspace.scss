@@ -221,3 +221,10 @@
     overflow: auto;
   }
 }
+
+.sa-tone-matrix {
+  canvas {
+    width: 420 * 1.2;
+    height: 420 * 1.2
+  }
+}

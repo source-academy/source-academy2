@@ -51,16 +51,14 @@ module.exports = {
   devtool: 'source-map',
   // In production, we only want to load the polyfills and the app code.
   entry: {
-    'story-xml': [path.resolve(__dirname, '../src/story-xml/index.js')],
-    common: [
+    vendor: [
       'react',
       'react-dom',
-      'react-addons-css-transition-group',
-      '@blueprintjs/core',
-      '@blueprintjs/datetime',
-      path.resolve(__dirname, '../src/common/index.ts')
+      '@blueprintjs/core'
     ],
-    workspace: [require.resolve('./polyfills'), paths.appIndexJs]
+    'story-xml': paths.storyXMLEntry,
+    common: paths.commonEntry,
+    workspace: [require.resolve('./polyfills'), paths.workspaceEntry]
   },
   output: {
     // The build folder.
@@ -232,6 +230,10 @@ module.exports = {
     new webpack.DefinePlugin(env.stringified),
     // Minify the code.
     new ParallelUglifyPlugin({}),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: "vendor",
+      minChunks: Infinity
+    }),
     // Note: this won't work without ExtractTextPlugin.extract(..) in `loaders`.
     new ExtractTextPlugin({
       filename: cssFilename

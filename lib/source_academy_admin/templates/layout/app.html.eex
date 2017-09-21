@@ -11,6 +11,7 @@
       <script src="http://localhost:4001/static/js/common.js"></script>
     <% else %>
       <link rel="stylesheet" href="<%= static_path(@conn, "/css/common.css") %>">
+      <script src="<%= static_path(@conn, "/js/vendor.js") %>"></script>
       <script src="<%= static_path(@conn, "/js/common.js") %>"></script>
     <% end %>
   </head>

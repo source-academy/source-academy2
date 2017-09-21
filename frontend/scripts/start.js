@@ -31,11 +31,6 @@ const createDevServerConfig = require('../config/webpackDevServer.config');
 const useYarn = fs.existsSync(paths.yarnLockFile);
 const isInteractive = process.stdout.isTTY;
 
-// Warn and crash if required files are missing
-if (!checkRequiredFiles([paths.appIndexJs])) {
-  process.exit(1);
-}
-
 // Tools like Cloud9 rely on this.
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 4001;
 const HOST = process.env.HOST || '0.0.0.0';

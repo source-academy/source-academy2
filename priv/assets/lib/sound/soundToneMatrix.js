@@ -323,6 +323,9 @@ ToneMatrix.bindMatrixButtons = bindMatrixButtons;
 // ********** THE FOLLOWING FUNCTIONS ARE EXPOSED TO STUDENTS **********
 // return the current state of the matrix, represented by a list of lists of bits
 function get_matrix() {
+  if (!matrix) {
+    throw new Error("Please activate the tone matrix first by clicking on the tab!")
+  }
   var matrix_list = matrix.slice(0);
   var result = [];
   for (var i = 0; i <= 15; i++) {

@@ -9,6 +9,7 @@
     ],
     "sourceMap": true,
     "allowJs": true,
+    "removeComments": false,
     "allowSyntheticDefaultImports": true,
     "jsx": "react",
     "moduleResolution": "node",

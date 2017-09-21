@@ -1,4 +1,4 @@
-import { SourceError } from '../toolchain/types/error'
+import { SourceError, Value } from '../toolchain/types'
 import { Comment } from './shape'
 import * as actionTypes from './actionTypes'
 
@@ -34,7 +34,7 @@ export const evalInterpreter = (code: string) => ({
   payload: code
 })
 
-export const evalInterpreterSuccess = (value: any) => ({
+export const evalInterpreterSuccess = (value: Value) => ({
   type: actionTypes.EVAL_INTERPRETER_SUCCESS,
   payload: value
 })
@@ -82,7 +82,7 @@ export const selectChoice = (id: number) => ({
   payload: id
 })
 
-export const selectChoiceSuccess = (payload: any) => ({
+export const selectChoiceSuccess = (payload: number) => ({
   type: actionTypes.SELECT_CHOICE_SUCCESS,
   payload
 })

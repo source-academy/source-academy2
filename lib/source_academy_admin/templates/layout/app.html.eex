@@ -8,11 +8,12 @@
     <meta name="author" content="">
     <title>Administration Panel - Source Academy</title>
     <%= if Application.get_env(:source_academy, :environment) == :dev do %>
-      <script src="http://localhost:4001/static/js/common.js"></script>
+      <script src="http://localhost:4001/static/js/vendor.js"></script>
+      <script src="http://localhost:4001/static/js/app.js"></script>
     <% else %>
-      <link rel="stylesheet" href="<%= static_path(@conn, "/css/common.css") %>">
+      <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
       <script src="<%= static_path(@conn, "/js/vendor.js") %>"></script>
-      <script src="<%= static_path(@conn, "/js/common.js") %>"></script>
+      <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
     <% end %>
   </head>
   <body>

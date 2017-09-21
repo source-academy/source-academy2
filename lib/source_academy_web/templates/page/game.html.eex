@@ -9,23 +9,14 @@
     background: black;
   }
 </style>
-<%= if @story_override do %>
-  <script>
-    var STORY_OVERRIDE = "<%= @story_override %>";
-  </script>
-<% end %>
 <%= link "Attempt",
       id: "attempt",
       style: "display:none",
       method: "put",
       to: assessment_path(@conn, :attempt, @assessment_id) %>
 <div id="game-display"
-     data-story="<%= @story %>"
+     class="sa-game"
+     data-story="<%= @story_override || @story %>"
      data-attempted-all="<%= @attempted_all %>"
      data-username="<%= @username %>">
 </div>
-<%= if Application.get_env(:source_academy, :environment) == :dev do %>
-  <script src="http://localhost:4001/static/js/story-xml.js"></script>
-<% else %>
-  <script src="<%= static_path(@conn, "/js/story-xml.js") %>"></script>
-<% end %>

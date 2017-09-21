@@ -3,6 +3,9 @@ import { Shape } from './shape'
 
 declare global {
   interface Window {
+    // Source Academy Global API
+    sa: any
+
     // Redux
     __REDUX_STORE__: Store<Shape>
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any

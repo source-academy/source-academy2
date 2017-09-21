@@ -32,18 +32,17 @@ module.exports = {
   // The first two entry points enable "hot" CSS and auto-refreshes for JS.
   entry: {
     vendor: [
+      'phoenix_html',
       'react',
       'react-dom',
       '@blueprintjs/core'
     ],
-    'story-xml': paths.storyXMLEntry,
-    common: paths.commonEntry,
-    workspace: [
+    app: [
       require.resolve('webpack-dev-server/client') + '?' + publicPath,
       require.resolve('webpack/hot/dev-server'),
       require.resolve('./polyfills'),
       require.resolve('react-error-overlay'),
-      paths.workspaceEntry
+      paths.appIndexTs
     ]
   },
   output: {
@@ -97,18 +96,6 @@ module.exports = {
       // TODO: Disable require.ensure as it's not a standard language feature.
       // We are waiting for https://github.com/facebookincubator/create-react-app/issues/2176.
       // { parser: { requireEnsure: false } },
-
-      // First, run the linter.
-      // It's important to do this before Babel processes the JS.
-      {
-        test: /\.(ts|tsx)$/,
-        loader: require.resolve('tslint-loader'),
-        enforce: 'pre',
-        include: paths.appSrc,
-        options: {
-          typeCheck: true
-        }
-      },
       {
         test: /\.js$/,
         loader: require.resolve('source-map-loader'),

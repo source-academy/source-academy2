@@ -13,9 +13,11 @@ import getInitialState from './util/getInitialState'
 async function initializeWorkspace(
   $solution: HTMLTextAreaElement,
   $container: Element,
-  initialState: Partial<Shape> = {},
-  isProgramming = true
+  initialState: Shape,
 ) {
+  const isProgramming =
+    initialState.config.isPlayground ||
+    initialState.config.questionType === 'programming_question'
   const store = await createStore(initialState)
   window.__REDUX_STORE__ = store
   const workspaceContainer = React.createFactory(WorkspaceContainer)
@@ -28,18 +30,15 @@ async function initializeWorkspace(
   }
 }
 
-;(function(exports: any) {
-  exports.initializeWorkspace = async (
-    $solution: HTMLTextAreaElement,
-    isPlayground = false
-  ) => {
-    document.body.style.backgroundColor = 'rgb(24, 32, 38)'
-    const $container = document.querySelector('.sa-main') as Element
-    $solution = $solution || document.createElement('textarea')
-    const state: Shape = await getInitialState(isPlayground)
-    const isProgramming =
-      state.config.isPlayground ||
-      state.config.questionType === 'programming_question'
-    initializeWorkspace($solution, $container, state, isProgramming)
-  }
-})(window)
+(function() {
+  document.body.style.backgroundColor = 'rgb(24, 32, 38)'
+  const $workspace = document.querySelector('.sa-workspace') as Element
+  const $container = document.querySelector('.sa-main') as Element
+  const $solution = (document.querySelector('.sa-solution')
+    || document.createElement('textarea'))
+  const isPlayground = $workspace.getAttribute('data-playground') === 'true'
+  getInitialState(isPlayground).then((state) => {
+    // tslint:disable-next-line:no-any
+    return initializeWorkspace($solution as any, $container, state)
+  })
+})()

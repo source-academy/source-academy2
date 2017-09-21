@@ -56,9 +56,10 @@ module.exports = {
       'react-dom',
       '@blueprintjs/core'
     ],
-    'story-xml': paths.storyXMLEntry,
-    common: paths.commonEntry,
-    workspace: [require.resolve('./polyfills'), paths.workspaceEntry]
+    app: [
+      require.resolve('./polyfills'),
+      paths.appIndexTs
+    ]
   },
   output: {
     // The build folder.

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
-import renderMarkdownWithoutLatex from '../../common/renderMarkdown'
+import { renderMarkdownWithoutLatex } from '../../common/renderMarkdown'
 
 import PlaygroundControl from './PlaygroundControl'
 import * as actions from '../actions'

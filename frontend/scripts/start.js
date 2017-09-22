@@ -9,9 +9,6 @@ process.on('unhandledRejection', err => {
 
 process.env.NODE_ENV = 'development';
 
-// Ensure environment variables are read.
-require('../config/env');
-
 const fs = require('fs');
 const chalk = require('chalk');
 const webpack = require('webpack');

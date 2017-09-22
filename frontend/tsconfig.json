@@ -25,10 +25,7 @@
   "exclude": [
     "node_modules",
     "scripts",
-    "acceptance-tests",
-    "webpack",
-    "jest",
-    "src/setupTests.ts"
+    "config"
   ],
   "types": [
     "typePatches"

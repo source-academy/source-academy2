@@ -119,6 +119,11 @@ export const importBuiltins = (context: Context) => {
   if (context.week >= 6) {
     defineSymbol(context, 'is_number', misc.is_number)
   }
+  if (context.week >= 8) {
+    defineSymbol(context, 'undefined', undefined)
+    defineSymbol(context, 'set_head', list.set_head)
+    defineSymbol(context, 'set_head', list.set_tail)
+  }
 }
 
 const createContext = (week = 3, externals = []) => {

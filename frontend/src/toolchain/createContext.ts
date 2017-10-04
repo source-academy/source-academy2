@@ -122,7 +122,7 @@ export const importBuiltins = (context: Context) => {
   if (context.week >= 8) {
     defineSymbol(context, 'undefined', undefined)
     defineSymbol(context, 'set_head', list.set_head)
-    defineSymbol(context, 'set_head', list.set_tail)
+    defineSymbol(context, 'set_tail', list.set_tail)
   }
 }
 

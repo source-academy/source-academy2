@@ -148,7 +148,7 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     return node.value
   },
   ArrayExpression: function* (node: es.ArrayExpression, context: Context) {
-    return node.elements
+    return node.elements.slice()
   },
   FunctionExpression: function* (node: es.FunctionExpression, context: Context) {
     return new Closure(node, currentFrame(context))

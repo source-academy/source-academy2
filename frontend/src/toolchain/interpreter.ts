@@ -14,7 +14,7 @@ import * as rttc from './utils/rttc'
 import * as errors from './interpreter-errors'
 
 class ReturnValue {
-  constructor(public value: Value) { }
+  constructor(public value: Value) {}
 }
 
 class TailCallReturnValue {
@@ -22,7 +22,7 @@ class TailCallReturnValue {
     public callee: Closure,
     public args: Value[],
     public node: es.CallExpression
-  ) { }
+  ) {}
 }
 
 const createFrame = (
@@ -53,7 +53,8 @@ const createFrame = (
 const handleError = (context: Context, error: SourceError) => {
   context.errors.push(error)
   if (error.severity === ErrorSeverity.ERROR) {
-    const globalFrame = context.runtime.frames[context.runtime.frames.length - 1]
+    const globalFrame =
+      context.runtime.frames[context.runtime.frames.length - 1]
     context.runtime.frames = [globalFrame]
     throw error
   } else {
@@ -85,9 +86,8 @@ function* leave(context: Context) {
 }
 const currentFrame = (context: Context) => context.runtime.frames[0]
 const replaceFrame = (context: Context, frame: Frame) =>
-  context.runtime.frames[0] = frame
-const popFrame = (context: Context) =>
-  context.runtime.frames.shift()
+  (context.runtime.frames[0] = frame)
+const popFrame = (context: Context) => context.runtime.frames.shift()
 const pushFrame = (context: Context, frame: Frame) =>
   context.runtime.frames.unshift(frame)
 
@@ -118,7 +118,12 @@ const checkCallStackSize = (context: Context, node: es.CallExpression) => {
   }
 }
 
-const checkNumberOfArguments = (context: Context, callee: Closure, args: Value[], exp: es.CallExpression) => {
+const checkNumberOfArguments = (
+  context: Context,
+  callee: Closure,
+  args: Value[],
+  exp: es.CallExpression
+) => {
   if (callee.node.params.length !== args.length) {
     const error = new errors.InvalidNumberOfArguments(
       exp,
@@ -144,25 +149,25 @@ export type Evaluator<T extends es.Node> = (
 
 export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
   /** Simple Values */
-  Literal: function* (node: es.Literal, context: Context) {
+  Literal: function*(node: es.Literal, context: Context) {
     return node.value
   },
-  ArrayExpression: function* (node: es.ArrayExpression, context: Context) {
+  ArrayExpression: function*(node: es.ArrayExpression, context: Context) {
     return node.elements.slice()
   },
-  FunctionExpression: function* (node: es.FunctionExpression, context: Context) {
+  FunctionExpression: function*(node: es.FunctionExpression, context: Context) {
     return new Closure(node, currentFrame(context))
   },
-  Identifier: function* (node: es.Identifier, context: Context) {
+  Identifier: function*(node: es.Identifier, context: Context) {
     return getVariable(context, node.name)
   },
-  CallExpression: function* (node: es.CallExpression, context: Context) {
+  CallExpression: function*(node: es.CallExpression, context: Context) {
     const callee = yield* evaluate(node.callee, context)
     const args = yield* getArgs(context, node)
     const result = yield* apply(context, callee, args, node)
     return result
   },
-  UnaryExpression: function* (node: es.UnaryExpression, context: Context) {
+  UnaryExpression: function*(node: es.UnaryExpression, context: Context) {
     const value = yield* evaluate(node.argument, context)
     if (node.operator === '!') {
       return !value
@@ -172,7 +177,7 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       return +value
     }
   },
-  BinaryExpression: function* (node: es.BinaryExpression, context: Context) {
+  BinaryExpression: function*(node: es.BinaryExpression, context: Context) {
     const left = yield* evaluate(node.left, context)
     const right = yield* evaluate(node.right, context)
 
@@ -218,10 +223,13 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     }
     return result
   },
-  ConditionalExpression: function* (node: es.ConditionalExpression, context: Context) {
+  ConditionalExpression: function*(
+    node: es.ConditionalExpression,
+    context: Context
+  ) {
     return yield* this.IfStatement(node, context)
   },
-  LogicalExpression: function* (node: es.LogicalExpression, context: Context) {
+  LogicalExpression: function*(node: es.LogicalExpression, context: Context) {
     const left = yield* evaluate(node.left, context)
     if ((node.operator === '&&' && left) || (node.operator === '||' && !left)) {
       return yield* evaluate(node.right, context)
@@ -229,21 +237,38 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       return left
     }
   },
-  VariableDeclaration: function* (node: es.VariableDeclaration, context: Context) {
+  VariableDeclaration: function*(
+    node: es.VariableDeclaration,
+    context: Context
+  ) {
     const declaration = node.declarations[0]
     const id = declaration.id as es.Identifier
     const value = yield* evaluate(declaration.init!, context)
     defineVariable(context, id.name, value)
     return undefined
   },
-  FunctionDeclaration: function* (node: es.FunctionDeclaration, context: Context) {
+  AssignmentExpression: function*(
+    node: es.AssignmentExpression,
+    context: Context
+  ) {
+    const id = node.left as es.Identifier
+    // Make sure it exist
+    getVariable(context, id.name)
+    const value = yield* evaluate(node.right, context)
+    currentFrame(context).environment[id.name] = value
+    return value
+  },
+  FunctionDeclaration: function*(
+    node: es.FunctionDeclaration,
+    context: Context
+  ) {
     const id = node.id as es.Identifier
     // tslint:disable-next-line:no-any
     const closure = new Closure(node as any, currentFrame(context))
     defineVariable(context, id.name, closure)
     return undefined
   },
-  IfStatement: function* (node: es.IfStatement, context: Context) {
+  IfStatement: function*(node: es.IfStatement, context: Context) {
     const test = yield* evaluate(node.test, context)
     if (test) {
       return yield* evaluate(node.consequent, context)
@@ -253,19 +278,18 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       return undefined
     }
   },
-  ExpressionStatement: function* (node: es.ExpressionStatement, context: Context) {
+  ExpressionStatement: function*(
+    node: es.ExpressionStatement,
+    context: Context
+  ) {
     return yield* evaluate(node.expression, context)
   },
-  ReturnStatement: function* (node: es.ReturnStatement, context: Context) {
+  ReturnStatement: function*(node: es.ReturnStatement, context: Context) {
     if (node.argument) {
       if (node.argument.type === 'CallExpression') {
         const callee = yield* evaluate(node.argument.callee, context)
         const args = yield* getArgs(context, node.argument)
-        return new TailCallReturnValue(
-          callee,
-          args,
-          node.argument
-        )
+        return new TailCallReturnValue(callee, args, node.argument)
       } else {
         return new ReturnValue(yield* evaluate(node.argument, context))
       }
@@ -273,7 +297,7 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       return new ReturnValue(undefined)
     }
   },
-  BlockStatement: function* (node: es.BlockStatement, context: Context) {
+  BlockStatement: function*(node: es.BlockStatement, context: Context) {
     let result: Value
     for (const statement of node.body) {
       result = yield* evaluate(statement, context)
@@ -283,7 +307,7 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     }
     return result
   },
-  Program: function* (node: es.BlockStatement, context: Context) {
+  Program: function*(node: es.BlockStatement, context: Context) {
     let result: Value
     for (const statement of node.body) {
       result = yield* evaluate(statement, context)
@@ -337,7 +361,8 @@ export function* apply(
         break
       } catch (e) {
         // Recover from exception
-        const globalFrame = context.runtime.frames[context.runtime.frames.length - 1]
+        const globalFrame =
+          context.runtime.frames[context.runtime.frames.length - 1]
         context.runtime.frames = [globalFrame]
         const loc = node ? node.loc! : constants.UNKNOWN_LOCATION
         handleError(context, new errors.ExceptionError(e, loc))

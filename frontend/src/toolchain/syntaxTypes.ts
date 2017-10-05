@@ -21,6 +21,7 @@ const syntaxTypes: { [nodeName: string]: number } = {
 
   // Week 8
   AssignmentExpression: 8,
+  WhileStatement: 8,
 
   // Week 8
   ThisExpression: 12,
@@ -31,7 +32,6 @@ const syntaxTypes: { [nodeName: string]: number } = {
   NewExpression: 12,
 
   // Week 12
-  WhileStatement: 12,
   BreakStatement: 12,
   ContinueStatement: 12,
   ForStatement: 12,

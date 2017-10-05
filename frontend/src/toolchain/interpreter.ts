@@ -297,6 +297,18 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       return new ReturnValue(undefined)
     }
   },
+  WhileStatement: function*(node: es.WhileStatement, context: Context) {
+    let value: any // tslint:disable-line
+    let test
+    while (
+      (test = yield* evaluate(node.test, context)) &&
+      !(value instanceof ReturnValue) &&
+      !(value instanceof TailCallReturnValue)
+    ) {
+      value = yield* evaluate(node.body, context)
+    }
+    return value
+  },
   BlockStatement: function*(node: es.BlockStatement, context: Context) {
     let result: Value
     for (const statement of node.body) {

@@ -106,6 +106,22 @@ const getVariable = (context: Context, name: string) => {
   )
 }
 
+const setVariable = (context: Context, name: string, value: any) => {
+  let frame: Frame | null = context.runtime.frames[0]
+  while (frame) {
+    if (frame.environment.hasOwnProperty(name)) {
+      frame.environment[name] = value
+      return
+    } else {
+      frame = frame.parent
+    }
+  }
+  handleError(
+    context,
+    new errors.UndefinedVariable(name, context.runtime.nodes[0])
+  )
+}
+
 const checkCallStackSize = (context: Context, node: es.CallExpression) => {
   const currentStackSize = context.runtime.frames.length
   // Check for max call stack
@@ -253,9 +269,8 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
   ) {
     const id = node.left as es.Identifier
     // Make sure it exist
-    getVariable(context, id.name)
     const value = yield* evaluate(node.right, context)
-    currentFrame(context).environment[id.name] = value
+    setVariable(context, id.name, value)
     return value
   },
   FunctionDeclaration: function*(

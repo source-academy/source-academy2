@@ -24,6 +24,8 @@ export class NoNonEmptyListError implements SourceError {
 const noNonEmptyList: Rule<es.ArrayExpression> = {
   name: 'no-non-empty-list',
 
+  disableOn: 9,
+
   checkers: {
     ArrayExpression(node: es.ArrayExpression) {
       if (node.elements.length > 0) {

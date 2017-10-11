@@ -22,6 +22,7 @@ export interface SourceError {
 
 export interface Rule<T extends es.Node> {
   name: string
+  disableOn?: number
   checkers: {
     [name: string]: (node: T) => SourceError[]
   }

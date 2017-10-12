@@ -34,3 +34,8 @@ export function is_number(v: Value) {
   return typeof v === 'number'
 }
 is_number.__SOURCE__ = 'is_number(v)'
+
+export function array_length(xs: Value[]) {
+  return xs.length
+}
+array_length.__SOURCE__ = 'array_length(xs)'

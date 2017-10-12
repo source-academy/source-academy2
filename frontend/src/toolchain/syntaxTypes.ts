@@ -23,18 +23,18 @@ const syntaxTypes: { [nodeName: string]: number } = {
   AssignmentExpression: 8,
   WhileStatement: 8,
 
-  // Week 8
-  ThisExpression: 12,
-  ObjectExpression: 12,
-  Property: 12,
-  UpdateExpression: 12,
-  MemberExpression: 12,
-  NewExpression: 12,
+  // Week 9
+  ForStatement: 9,
+  BreakStatement: 9,
+  ContinueStatement: 9,
 
-  // Week 12
-  BreakStatement: 12,
-  ContinueStatement: 12,
-  ForStatement: 12,
+  // Week 10
+  ThisExpression: 10,
+  ObjectExpression: 10,
+  Property: 10,
+  UpdateExpression: 10,
+  NewExpression: 10,
+  MemberExpression: 10,
 
   // Disallowed Forever
   SwitchStatement: Infinity,

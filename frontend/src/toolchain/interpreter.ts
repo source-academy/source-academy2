@@ -17,6 +17,10 @@ class ReturnValue {
   constructor(public value: Value) {}
 }
 
+class BreakValue {}
+
+class ContinueValue {}
+
 class TailCallReturnValue {
   constructor(
     public callee: Closure,
@@ -169,7 +173,11 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     return node.value
   },
   ArrayExpression: function*(node: es.ArrayExpression, context: Context) {
-    return node.elements.slice()
+    const res = []
+    for (const n of node.elements) {
+      res.push(yield* evaluate(n, context))
+    }
+    return res
   },
   FunctionExpression: function*(node: es.FunctionExpression, context: Context) {
     return new Closure(node, currentFrame(context))
@@ -263,10 +271,60 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     defineVariable(context, id.name, value)
     return undefined
   },
+  ContinueStatement: function*(node: es.ContinueStatement, context: Context) {
+    return new ContinueValue()
+  },
+  BreakStatement: function*(node: es.BreakStatement, context: Context) {
+    return new BreakValue()
+  },
+  ForStatement: function*(node: es.ForStatement, context: Context) {
+    if (node.init) {
+      yield* evaluate(node.init, context)
+    }
+    let test = node.test ? yield* evaluate(node.test, context) : true
+    let value
+    while (test) {
+      value = yield* evaluate(node.body, context)
+      if (value instanceof ContinueValue) {
+        value = undefined
+      }
+      if (value instanceof BreakValue) {
+        value = undefined
+        break
+      }
+      if (node.update) {
+        yield* evaluate(node.update, context)
+      }
+      test = node.test ? yield* evaluate(node.test, context) : true
+    }
+    return value
+  },
+  MemberExpression: function*(node: es.MemberExpression, context: Context) {
+    const obj = yield* evaluate(node.object, context)
+    if (node.computed) {
+      const prop = yield* evaluate(node.property, context)
+      return obj[prop]
+    } else {
+      return obj[(node.property as es.Identifier).name]
+    }
+  },
   AssignmentExpression: function*(
     node: es.AssignmentExpression,
     context: Context
   ) {
+    if (node.left.type === 'MemberExpression') {
+      const left = node.left
+      const obj = yield* evaluate(left.object, context)
+      let prop
+      if (left.computed) {
+        prop = yield* evaluate(left.property, context)
+      } else {
+        prop = (left.property as es.Identifier).name
+      }
+      const val = yield* evaluate(node.right, context)
+      obj[prop] = val
+      return val
+    }
     const id = node.left as es.Identifier
     // Make sure it exist
     const value = yield* evaluate(node.right, context)
@@ -328,7 +386,11 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     let result: Value
     for (const statement of node.body) {
       result = yield* evaluate(statement, context)
-      if (result instanceof ReturnValue) {
+      if (
+        result instanceof ReturnValue ||
+        result instanceof BreakValue ||
+        result instanceof ContinueValue
+      ) {
         break
       }
     }

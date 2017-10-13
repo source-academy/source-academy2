@@ -34,7 +34,7 @@ const syntaxTypes: { [nodeName: string]: number } = {
   Property: 10,
   UpdateExpression: 10,
   NewExpression: 10,
-  MemberExpression: 10,
+  MemberExpression: 9,
 
   // Disallowed Forever
   SwitchStatement: Infinity,

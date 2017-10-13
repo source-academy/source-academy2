@@ -297,6 +297,9 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       }
       test = node.test ? yield* evaluate(node.test, context) : true
     }
+    if (value instanceof BreakValue) {
+      return undefined
+    }
     return value
   },
   MemberExpression: function*(node: es.MemberExpression, context: Context) {
@@ -376,9 +379,13 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     while (
       (test = yield* evaluate(node.test, context)) &&
       !(value instanceof ReturnValue) &&
+      !(value instanceof BreakValue) &&
       !(value instanceof TailCallReturnValue)
     ) {
       value = yield* evaluate(node.body, context)
+    }
+    if (value instanceof BreakValue) {
+      return undefined
     }
     return value
   },

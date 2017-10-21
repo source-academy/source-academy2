@@ -1,6 +1,8 @@
 import * as es from 'estree'
 import { SourceLocation } from 'acorn'
 
+import { closureToJS } from './interop'
+
 export enum ErrorType {
   SYNTAX = 'Syntax',
   TYPE = 'Type',
@@ -118,6 +120,7 @@ export interface Frame {
   parent: Frame | null
   callExpression?: es.CallExpression
   environment: Environment
+  thisContext?: Value
 }
 
 /**
@@ -130,13 +133,21 @@ export class Closure {
   /** Unique ID defined for anonymous closure */
   public name: string
 
-  constructor(public node: es.FunctionExpression, public frame: Frame) {
+  /** Fake closure function */
+  public fun: Function
+
+  constructor(
+    public node: es.FunctionExpression,
+    public frame: Frame,
+    context: Context
+  ) {
     this.node = node
     if (this.node.id) {
       this.name = this.node.id.name
     } else {
-      this.name = `anonymous-${++Closure.lambdaCtr}`
+      this.name = `Anonymous${++Closure.lambdaCtr}`
     }
+    this.fun = closureToJS(this, context, this.name)
   }
 }
 

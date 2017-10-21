@@ -3,17 +3,32 @@ import { Closure, Context, Value } from './types'
 import { apply } from './interpreter'
 import { MAX_LIST_DISPLAY_LENGTH } from './constants'
 
-export const toJS = (value: Value, context: Context) => {
-  if (value instanceof Closure) {
-    return function() {
-      const args: Value[] = Array.prototype.slice.call(arguments)
-      const gen = apply(context, value, args)
-      let it = gen.next()
-      while (!it.done) {
-        it = gen.next()
-      }
-      return it.value
+export const closureToJS = (value: Value, context: Context, klass: string) => {
+  function DummyClass(this: Value) {
+    const args: Value[] = Array.prototype.slice.call(arguments)
+    const gen = apply(context, value, args, undefined, this)
+    let it = gen.next()
+    while (!it.done) {
+      it = gen.next()
     }
+    return it.value
+  }
+  Object.defineProperty(DummyClass, 'name', {
+    value: klass
+  })
+  DummyClass.Inherits = function(Parent: Value) {
+    DummyClass.prototype = Object.create(Parent.prototype)
+    DummyClass.prototype.constructor = DummyClass
+  }
+  DummyClass.call = function(thisArg: Value, ...args: Value[]) {
+    return DummyClass.apply(thisArg, args)
+  }
+  return DummyClass
+}
+
+export const toJS = (value: Value, context: Context, klass?: string) => {
+  if (value instanceof Closure) {
+    return value.fun
   } else {
     return value
   }

@@ -27,6 +27,7 @@ const syntaxTypes: { [nodeName: string]: number } = {
   ForStatement: 9,
   BreakStatement: 9,
   ContinueStatement: 9,
+  MemberExpression: 9,
 
   // Week 10
   ThisExpression: 10,
@@ -34,7 +35,6 @@ const syntaxTypes: { [nodeName: string]: number } = {
   Property: 10,
   UpdateExpression: 10,
   NewExpression: 10,
-  MemberExpression: 9,
 
   // Disallowed Forever
   SwitchStatement: Infinity,

@@ -8,7 +8,6 @@ export const Types = {
   BOOLEAN: { name: 'boolean' } as CFG.Type,
   ANY: { name: 'any' } as CFG.Type
 }
-export const MAX_STACK_LIMIT = 500
 export const MAX_LIST_DISPLAY_LENGTH = 100
 export const UNKNOWN_LOCATION: es.SourceLocation = {
   start: {

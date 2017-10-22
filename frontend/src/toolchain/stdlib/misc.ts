@@ -13,6 +13,7 @@ export function display(value: Value) {
     console.log(output)
   }
 }
+window.display = display
 display.__SOURCE__ = 'display(v)'
 
 // tslint:disable-next-line:no-any

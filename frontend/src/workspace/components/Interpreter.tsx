@@ -36,78 +36,83 @@ export type InterpreterOutputProps = {
   output: InterpreterOutput
 }
 
-const InterpreterOutput: React.StatelessComponent<InterpreterOutputProps> = ({
-  output
-}) => {
-  const getErrors = (output: ErrorOutput) => {
-    const errorLines = output.errors.map(e => {
-      const line = e.location ? e.location.start.line : '<unknown>'
-      const explanation = e.explain()
-      return `Line ${line}:\n${explanation}`
-    })
-    return (
-      <div className="errors">
-        {errorLines.map((e, idx) => {
-          return (
-            <span key={idx} className="error">
-              {e}
-            </span>
-          )
-        })}
-      </div>
-    )
+class InterpreterOutputView extends React.Component<
+  InterpreterOutputProps,
+  {}
+> {
+  shouldComponentUpdate() {
+    return false
   }
-  const renderCode = (value: any) => {
-    return (
-      <pre className="code">
-        <code>
-          {value}
-        </code>
-      </pre>
-    )
-  }
-  const renderValue = (value: any) => {
-    const aw = window as any
-    if (
-      typeof aw.ShapeDrawn !== 'undefined' &&
-      value instanceof aw.ShapeDrawn
-    ) {
-      return <CanvasOutput />
-    } else {
+
+  render() {
+    const { output } = this.props
+
+    const getErrors = (output: ErrorOutput) => {
+      const errorLines = output.errors.map(e => {
+        const line = e.location ? e.location.start.line : '<unknown>'
+        const explanation = e.explain()
+        return `Line ${line}:\n${explanation}`
+      })
       return (
-        <pre className="value">
-          <code>
-            {toString(value)}
-          </code>
+        <div className="errors">
+          {errorLines.map((e, idx) => {
+            return (
+              <span key={idx} className="error">
+                {e}
+              </span>
+            )
+          })}
+        </div>
+      )
+    }
+    const renderCode = (value: any) => {
+      return (
+        <pre className="code">
+          <code>{value}</code>
         </pre>
       )
     }
+    const renderValue = (value: any) => {
+      const aw = window as any
+      if (
+        typeof aw.ShapeDrawn !== 'undefined' &&
+        value instanceof aw.ShapeDrawn
+      ) {
+        return <CanvasOutput />
+      } else {
+        return (
+          <pre className="value">
+            <code>{toString(value)}</code>
+          </pre>
+        )
+      }
+    }
+    const renderLog = (value: string) => (
+      <pre className="log">
+        <code>{value}</code>
+      </pre>
+    )
+    let content
+    if (output.type === 'code') {
+      content = renderCode(output.value)
+    } else if (output.type === 'result') {
+      content = renderValue(output.value)
+    } else if (output.type === 'log') {
+      content = renderLog(output.value)
+    } else {
+      content = getErrors(output)
+    }
+    return (
+      <div className={`output output-${output.type}`}>
+        {output.type === 'code' ? (
+          <span className="indicator pt-icon-standard pt-icon-code" />
+        ) : (
+          <span className="indicator pt-icon-standard pt-icon-chevron-left" />
+        )}
+        {content}
+      </div>
+    )
   }
-  const renderLog = (value: string) => (
-    <pre className="log">
-      <code>
-        {value}
-      </code>
-    </pre>
-  )
-  let content
-  if (output.type === 'code') {
-    content = renderCode(output.value)
-  } else if (output.type === 'result') {
-    content = renderValue(output.value)
-  } else if (output.type === 'log') {
-    content = renderLog(output.value)
-  } else {
-    content = getErrors(output)
-  }
-  return (
-    <div className={`output output-${output.type}`}>
-      {output.type === 'code'
-        ? <span className="indicator pt-icon-standard pt-icon-code" />
-        : <span className="indicator pt-icon-standard pt-icon-chevron-left" />}
-      {content}
-    </div>
-  )
 }
 
 class Interpreter extends React.Component<Props, {}> {
@@ -158,9 +163,9 @@ class Interpreter extends React.Component<Props, {}> {
       </Button>
     )
 
-    const outputs = this.props.outputs.map((output, idx) =>
-      <InterpreterOutput key={idx} output={output} />
-    )
+    const outputs = this.props.outputs.map((output, idx) => (
+      <InterpreterOutputView key={idx} output={output} />
+    ))
 
     return (
       <div className="interpreter">

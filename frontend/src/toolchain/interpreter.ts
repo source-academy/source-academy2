@@ -14,15 +14,19 @@ import * as rttc from './utils/rttc'
 import * as errors from './interpreter-errors'
 
 class ReturnValue {
-  constructor(public value: Value) { }
+  constructor(public value: Value) {}
 }
+
+class BreakValue {}
+
+class ContinueValue {}
 
 class TailCallReturnValue {
   constructor(
     public callee: Closure,
     public args: Value[],
     public node: es.CallExpression
-  ) { }
+  ) {}
 }
 
 const createFrame = (
@@ -38,9 +42,7 @@ const createFrame = (
   if (callExpression) {
     frame.callExpression = {
       ...callExpression,
-      arguments: callExpression.arguments.map(
-        a => createNode(a) as es.Expression
-      )
+      arguments: args.map(a => createNode(a) as es.Expression)
     }
   }
   closure.node.params.forEach((param, index) => {
@@ -53,7 +55,8 @@ const createFrame = (
 const handleError = (context: Context, error: SourceError) => {
   context.errors.push(error)
   if (error.severity === ErrorSeverity.ERROR) {
-    const globalFrame = context.runtime.frames[context.runtime.frames.length - 1]
+    const globalFrame =
+      context.runtime.frames[context.runtime.frames.length - 1]
     context.runtime.frames = [globalFrame]
     throw error
   } else {
@@ -70,7 +73,6 @@ function defineVariable(context: Context, name: string, value: Value) {
       new errors.VariableRedeclaration(context.runtime.nodes[0]!, name)
     )
   }
-
   frame.environment[name] = value
 
   return frame
@@ -85,9 +87,8 @@ function* leave(context: Context) {
 }
 const currentFrame = (context: Context) => context.runtime.frames[0]
 const replaceFrame = (context: Context, frame: Frame) =>
-  context.runtime.frames[0] = frame
-const popFrame = (context: Context) =>
-  context.runtime.frames.shift()
+  (context.runtime.frames[0] = frame)
+const popFrame = (context: Context) => context.runtime.frames.shift()
 const pushFrame = (context: Context, frame: Frame) =>
   context.runtime.frames.unshift(frame)
 
@@ -106,19 +107,28 @@ const getVariable = (context: Context, name: string) => {
   )
 }
 
-const checkCallStackSize = (context: Context, node: es.CallExpression) => {
-  const currentStackSize = context.runtime.frames.length
-  // Check for max call stack
-  if (node && currentStackSize > constants.MAX_STACK_LIMIT) {
-    const stacks = context.runtime.frames
-      .slice(0, 3)
-      .map(s => s.callExpression as es.CallExpression)
-    const error = new errors.MaximumStackLimitExceeded(node, stacks)
-    handleError(context, error)
+const setVariable = (context: Context, name: string, value: any) => {
+  let frame: Frame | null = context.runtime.frames[0]
+  while (frame) {
+    if (frame.environment.hasOwnProperty(name)) {
+      frame.environment[name] = value
+      return
+    } else {
+      frame = frame.parent
+    }
   }
+  handleError(
+    context,
+    new errors.UndefinedVariable(name, context.runtime.nodes[0])
+  )
 }
 
-const checkNumberOfArguments = (context: Context, callee: Closure, args: Value[], exp: es.CallExpression) => {
+const checkNumberOfArguments = (
+  context: Context,
+  callee: Closure,
+  args: Value[],
+  exp: es.CallExpression
+) => {
   if (callee.node.params.length !== args.length) {
     const error = new errors.InvalidNumberOfArguments(
       exp,
@@ -144,25 +154,47 @@ export type Evaluator<T extends es.Node> = (
 
 export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
   /** Simple Values */
-  Literal: function* (node: es.Literal, context: Context) {
+  Literal: function*(node: es.Literal, context: Context) {
     return node.value
   },
-  ArrayExpression: function* (node: es.ArrayExpression, context: Context) {
-    return node.elements
+  ThisExpression: function*(node: es.ThisExpression, context: Context) {
+    return context.runtime.frames[0].thisContext
   },
-  FunctionExpression: function* (node: es.FunctionExpression, context: Context) {
-    return new Closure(node, currentFrame(context))
+  ArrayExpression: function*(node: es.ArrayExpression, context: Context) {
+    const res = []
+    for (const n of node.elements) {
+      res.push(yield* evaluate(n, context))
+    }
+    return res
   },
-  Identifier: function* (node: es.Identifier, context: Context) {
+  FunctionExpression: function*(node: es.FunctionExpression, context: Context) {
+    return new Closure(node, currentFrame(context), context)
+  },
+  Identifier: function*(node: es.Identifier, context: Context) {
     return getVariable(context, node.name)
   },
-  CallExpression: function* (node: es.CallExpression, context: Context) {
+  CallExpression: function*(node: es.CallExpression, context: Context) {
     const callee = yield* evaluate(node.callee, context)
     const args = yield* getArgs(context, node)
-    const result = yield* apply(context, callee, args, node)
+    let thisContext = undefined
+    if (node.callee.type === 'MemberExpression') {
+      thisContext = yield* evaluate(node.callee.object, context)
+    }
+    const result = yield* apply(context, callee, args, node, thisContext)
     return result
   },
-  UnaryExpression: function* (node: es.UnaryExpression, context: Context) {
+  NewExpression: function*(node: es.NewExpression, context: Context) {
+    const callee = yield* evaluate(node.callee, context)
+    const args = []
+    for (const arg of node.arguments) {
+      args.push(yield* evaluate(arg, context))
+    }
+    const obj: Value = {}
+    obj.__proto__ = callee.fun.prototype
+    callee.fun.apply(obj, args)
+    return obj
+  },
+  UnaryExpression: function*(node: es.UnaryExpression, context: Context) {
     const value = yield* evaluate(node.argument, context)
     if (node.operator === '!') {
       return !value
@@ -172,7 +204,7 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       return +value
     }
   },
-  BinaryExpression: function* (node: es.BinaryExpression, context: Context) {
+  BinaryExpression: function*(node: es.BinaryExpression, context: Context) {
     const left = yield* evaluate(node.left, context)
     const right = yield* evaluate(node.right, context)
 
@@ -218,10 +250,13 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     }
     return result
   },
-  ConditionalExpression: function* (node: es.ConditionalExpression, context: Context) {
+  ConditionalExpression: function*(
+    node: es.ConditionalExpression,
+    context: Context
+  ) {
     return yield* this.IfStatement(node, context)
   },
-  LogicalExpression: function* (node: es.LogicalExpression, context: Context) {
+  LogicalExpression: function*(node: es.LogicalExpression, context: Context) {
     const left = yield* evaluate(node.left, context)
     if ((node.operator === '&&' && left) || (node.operator === '||' && !left)) {
       return yield* evaluate(node.right, context)
@@ -229,21 +264,101 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       return left
     }
   },
-  VariableDeclaration: function* (node: es.VariableDeclaration, context: Context) {
+  VariableDeclaration: function*(
+    node: es.VariableDeclaration,
+    context: Context
+  ) {
     const declaration = node.declarations[0]
     const id = declaration.id as es.Identifier
     const value = yield* evaluate(declaration.init!, context)
     defineVariable(context, id.name, value)
     return undefined
   },
-  FunctionDeclaration: function* (node: es.FunctionDeclaration, context: Context) {
+  ContinueStatement: function*(node: es.ContinueStatement, context: Context) {
+    return new ContinueValue()
+  },
+  BreakStatement: function*(node: es.BreakStatement, context: Context) {
+    return new BreakValue()
+  },
+  ForStatement: function*(node: es.ForStatement, context: Context) {
+    if (node.init) {
+      yield* evaluate(node.init, context)
+    }
+    let test = node.test ? yield* evaluate(node.test, context) : true
+    let value
+    while (test) {
+      value = yield* evaluate(node.body, context)
+      if (value instanceof ContinueValue) {
+        value = undefined
+      }
+      if (value instanceof BreakValue) {
+        value = undefined
+        break
+      }
+      if (value instanceof ReturnValue) {
+        break
+      }
+      if (node.update) {
+        yield* evaluate(node.update, context)
+      }
+      test = node.test ? yield* evaluate(node.test, context) : true
+    }
+    if (value instanceof BreakValue) {
+      return undefined
+    }
+    return value
+  },
+  MemberExpression: function*(node: es.MemberExpression, context: Context) {
+    let obj = yield* evaluate(node.object, context)
+    if (obj instanceof Closure) {
+      obj = obj.fun
+    }
+    if (node.computed) {
+      const prop = yield* evaluate(node.property, context)
+      return obj[prop]
+    } else {
+      const name = (node.property as es.Identifier).name
+      if (name === 'prototype') {
+        return obj.prototype
+      } else {
+        return obj[name]
+      }
+    }
+  },
+  AssignmentExpression: function*(
+    node: es.AssignmentExpression,
+    context: Context
+  ) {
+    if (node.left.type === 'MemberExpression') {
+      const left = node.left
+      let obj = yield* evaluate(left.object, context)
+      let prop
+      if (left.computed) {
+        prop = yield* evaluate(left.property, context)
+      } else {
+        prop = (left.property as es.Identifier).name
+      }
+      const val = yield* evaluate(node.right, context)
+      obj[prop] = val
+      return val
+    }
+    const id = node.left as es.Identifier
+    // Make sure it exist
+    const value = yield* evaluate(node.right, context)
+    setVariable(context, id.name, value)
+    return value
+  },
+  FunctionDeclaration: function*(
+    node: es.FunctionDeclaration,
+    context: Context
+  ) {
     const id = node.id as es.Identifier
     // tslint:disable-next-line:no-any
-    const closure = new Closure(node as any, currentFrame(context))
+    const closure = new Closure(node as any, currentFrame(context), context)
     defineVariable(context, id.name, closure)
     return undefined
   },
-  IfStatement: function* (node: es.IfStatement, context: Context) {
+  IfStatement: function*(node: es.IfStatement, context: Context) {
     const test = yield* evaluate(node.test, context)
     if (test) {
       return yield* evaluate(node.consequent, context)
@@ -253,19 +368,18 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       return undefined
     }
   },
-  ExpressionStatement: function* (node: es.ExpressionStatement, context: Context) {
+  ExpressionStatement: function*(
+    node: es.ExpressionStatement,
+    context: Context
+  ) {
     return yield* evaluate(node.expression, context)
   },
-  ReturnStatement: function* (node: es.ReturnStatement, context: Context) {
+  ReturnStatement: function*(node: es.ReturnStatement, context: Context) {
     if (node.argument) {
       if (node.argument.type === 'CallExpression') {
         const callee = yield* evaluate(node.argument.callee, context)
         const args = yield* getArgs(context, node.argument)
-        return new TailCallReturnValue(
-          callee,
-          args,
-          node.argument
-        )
+        return new TailCallReturnValue(callee, args, node.argument)
       } else {
         return new ReturnValue(yield* evaluate(node.argument, context))
       }
@@ -273,17 +387,50 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       return new ReturnValue(undefined)
     }
   },
-  BlockStatement: function* (node: es.BlockStatement, context: Context) {
+  WhileStatement: function*(node: es.WhileStatement, context: Context) {
+    let value: any // tslint:disable-line
+    let test
+    while (
+      (test = yield* evaluate(node.test, context)) &&
+      !(value instanceof ReturnValue) &&
+      !(value instanceof BreakValue) &&
+      !(value instanceof TailCallReturnValue)
+    ) {
+      value = yield* evaluate(node.body, context)
+    }
+    if (value instanceof BreakValue) {
+      return undefined
+    }
+    return value
+  },
+  ObjectExpression: function*(node: es.ObjectExpression, context: Context) {
+    const obj = {}
+    for (let prop of node.properties) {
+      let key
+      if (prop.key.type === 'Identifier') {
+        key = prop.key.name
+      } else {
+        key = yield* evaluate(prop.key, context)
+      }
+      obj[key] = yield* evaluate(prop.value, context)
+    }
+    return obj
+  },
+  BlockStatement: function*(node: es.BlockStatement, context: Context) {
     let result: Value
     for (const statement of node.body) {
       result = yield* evaluate(statement, context)
-      if (result instanceof ReturnValue) {
+      if (
+        result instanceof ReturnValue ||
+        result instanceof BreakValue ||
+        result instanceof ContinueValue
+      ) {
         break
       }
     }
     return result
   },
-  Program: function* (node: es.BlockStatement, context: Context) {
+  Program: function*(node: es.BlockStatement, context: Context) {
     let result: Value
     for (const statement of node.body) {
       result = yield* evaluate(statement, context)
@@ -304,47 +451,50 @@ export function* evaluate(node: es.Node, context: Context) {
 
 export function* apply(
   context: Context,
-  callee: Closure | Value,
+  fun: Closure | Value,
   args: Value[],
-  node?: es.CallExpression
+  node?: es.CallExpression,
+  thisContext?: Value
 ) {
   let result: Value
   let total = 0
 
   while (!(result instanceof ReturnValue)) {
-    if (callee instanceof Closure) {
-      checkCallStackSize(context, node!)
-      checkNumberOfArguments(context, callee, args, node!)
-      const frame = createFrame(callee, args, node)
+    if (fun instanceof Closure) {
+      checkNumberOfArguments(context, fun, args, node!)
+      const frame = createFrame(fun, args, node)
+      frame.thisContext = thisContext
       if (result instanceof TailCallReturnValue) {
         replaceFrame(context, frame)
       } else {
         pushFrame(context, frame)
         total++
       }
-      result = yield* evaluate(callee.node.body, context)
+      result = yield* evaluate(fun.node.body, context)
       if (result instanceof TailCallReturnValue) {
-        callee = result.callee
+        fun = result.callee
         node = result.node
         args = result.args
       } else if (!(result instanceof ReturnValue)) {
         // No Return Value, set it as undefined
         result = new ReturnValue(undefined)
       }
-    } else if (typeof callee === 'function') {
+    } else if (typeof fun === 'function') {
       try {
-        result = callee.apply(null, args.map(a => toJS(a, context)))
+        const as = args.map(a => toJS(a, context))
+        result = fun.apply(thisContext, as)
         break
       } catch (e) {
         // Recover from exception
-        const globalFrame = context.runtime.frames[context.runtime.frames.length - 1]
+        const globalFrame =
+          context.runtime.frames[context.runtime.frames.length - 1]
         context.runtime.frames = [globalFrame]
         const loc = node ? node.loc! : constants.UNKNOWN_LOCATION
         handleError(context, new errors.ExceptionError(e, loc))
         result = undefined
       }
     } else {
-      handleError(context, new errors.CallingNonFunctionValue(callee, node))
+      handleError(context, new errors.CallingNonFunctionValue(fun, node))
       result = undefined
       break
     }

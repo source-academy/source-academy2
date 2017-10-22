@@ -7,7 +7,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
 const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin');
 const paths = require('./paths');
-const getClientEnvironment = require('./env');
 
 // Webpack uses `publicPath` to determine where the app is being served from.
 // It requires a trailing slash, or the file assets will get an incorrect path.
@@ -19,14 +18,6 @@ const shouldUseRelativeAssetPaths = publicPath === './';
 // as %PUBLIC_URL% in `index.html` and `process.env.PUBLIC_URL` in JavaScript.
 // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
 const publicUrl = publicPath.slice(0, -1);
-// Get environment variables to inject into our app.
-const env = getClientEnvironment(publicUrl);
-
-// Assert this just to be safe.
-// Development builds of React are slow and not intended for production.
-if (env.stringified['process.env'].NODE_ENV !== '"production"') {
-  throw new Error('Production builds must have NODE_ENV=production.');
-}
 
 // Note: defined here because it will be used more than once.
 const cssFilename = 'css/[name].css';
@@ -80,10 +71,7 @@ module.exports = {
     // We placed these paths second because we want `node_modules` to "win"
     // if there are any conflicts. This matches Node resolution mechanism.
     // https://github.com/facebookincubator/create-react-app/issues/253
-    modules: ['node_modules', paths.appNodeModules].concat(
-      // It is guaranteed to exist because we tweak it in `env.js`
-      process.env.NODE_PATH.split(path.delimiter).filter(Boolean)
-    ),
+    modules: ['node_modules'],
     // These are the reasonable defaults supported by the Node ecosystem.
     // We also include JSX as a common component filename extension to support
     // some tools, although we do not recommend using it, see:
@@ -155,11 +143,12 @@ module.exports = {
         test: /\.(ts|tsx)$/,
         include: paths.appSrc,
         use: [
-          { loader: 'babel-loader' },
           {
-            loader: 'ts-loader',
+            loader: 'awesome-typescript-loader',
             options: {
-              happyPackMode: true
+              transpileOnly: true,
+              useBabel: true,
+              useCache: true
             }
           }
         ]
@@ -224,11 +213,6 @@ module.exports = {
     ]
   },
   plugins: [
-    // Makes some environment variables available to the JS code, for example:
-    // if (process.env.NODE_ENV === 'production') { ... }. See `./env.js`.
-    // It is absolutely essential that NODE_ENV was set to production here.
-    // Otherwise React will be compiled in the very slow development mode.
-    new webpack.DefinePlugin(env.stringified),
     // Minify the code.
     new ParallelUglifyPlugin({}),
     new webpack.optimize.CommonsChunkPlugin({

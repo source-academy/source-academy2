@@ -190,8 +190,13 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
       args.push(yield* evaluate(arg, context))
     }
     const obj: Value = {}
-    obj.__proto__ = callee.fun.prototype
-    callee.fun.apply(obj, args)
+    if (callee instanceof Closure) {
+      obj.__proto__ = callee.fun.prototype
+      callee.fun.apply(obj, args)
+    } else {
+      obj.__proto__ = callee.prototype
+      callee.apply(obj, args)
+    }
     return obj
   },
   UnaryExpression: function*(node: es.UnaryExpression, context: Context) {

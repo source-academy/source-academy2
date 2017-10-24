@@ -1,6 +1,6 @@
 function test_task1(player) {
 	CONF_MAX_INERTIA = 2;
-	var engine = new DeathCubeEngine(CONT_MODE, LAYOUT19);
+	var engine = new DeathCubeEngine(CONT_MODE, LAYOUT18);
 	engine.__registerPlayer(player);
 	player.take(list(MakeAndInstallLightSaber(player.getLocation(), 30, COL_RED),
 									 MakeAndInstallLaser(player.getLocation(), 30, COL_BLUE),
@@ -21,7 +21,7 @@ function test_task1(player) {
 
 function test_task2(player) {
 	CONF_MAX_INERTIA = 2;
-	var engine = new DeathCubeEngine(CONT_MODE, LAYOUT19);
+	var engine = new DeathCubeEngine(CONT_MODE, LAYOUT18);
 	engine.__registerPlayer(player);
 	player.take(list(MakeAndInstallLightSaber(player.getLocation(), 30, COL_RED),
 									 MakeAndInstallLaser(player.getLocation(), 30, COL_BLUE),

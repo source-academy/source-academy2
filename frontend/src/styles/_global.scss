@@ -42,6 +42,11 @@ header {
   top: $pt-navbar-height;
 }
 
+.row {
+  align-items: center;
+  margin-bottom: 5px;
+}
+
 .is-paddingless {
   padding-top: 0px !important;
 }

@@ -8,11 +8,13 @@
       <th style="width:150px;">Name</th>
       <th style="width:50px;">Status</th>
       <th style="width:200px;">Open-Close</th>
-      <th></th>
+      <th>Actions</th>
+      <th>Priority</th>
     </thead>
     <tbody>
       <% assessments = @assessments
           |> Enum.sort_by(&(&1.name))
+          |> Enum.sort_by(&(&1.priority))
           |> Enum.reverse %>
       <%= for assessment <- assessments do %>
           <tr>
@@ -43,6 +45,15 @@
                     class: "pt-button pt-intent-warning",
                     to: admin_assessment_submissions_path(@conn, :submissions,
                       assessment.id) %>
+            </td>
+            <td style="font-size: 20pt;">
+              <%= assessment.priority %>
+              <%= link method: "put", style: "text-decoration: none;", to: admin_assessment_priorityup_path(@conn, :priorityup, assessment.id) do %>
+                <i class="fa fa-chevron-up"></i>
+              <% end %>
+              <%= link method: "put", style: "text-decoration: none;", to: admin_assessment_prioritydown_path(@conn, :prioritydown, assessment.id) do %>
+                <i class="fa fa-chevron-down"></i>
+              <% end %>
             </td>
           </tr>
       <% end %>

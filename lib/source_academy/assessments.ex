@@ -754,4 +754,12 @@ defmodule SourceAcademy.Assessments do
       Repo.update_all(codes, set: [is_readonly: is_readonly])
     end
   end
+
+  def priority(id, delta) do
+    changeset = change_assessment(id, %{})
+
+    simple_update(Assessment, id,
+      using: &Assessment.changeset/2,
+      params: %{ priority: changeset.data.priority + delta })
+  end
 end

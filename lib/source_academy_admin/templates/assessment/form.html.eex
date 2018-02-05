@@ -5,7 +5,7 @@
     </div>
     <div class="body effect3">
       <div class="row">
-        <div class="col-xs-7">
+        <div class="col-xs-6">
           <%= input_group f, "Title", :title, hint: "(e.g Understanding the Source)" %>
         </div>
         <div class="col-xs-2">
@@ -21,6 +21,9 @@
         </div>
         <div class="col-xs-2">
           <%= input_group f, "Max XP", :max_xp %>
+        </div>
+        <div class="col-xs-1">
+          <%= input_group f, "Priority", :priority %>
         </div>
       </div>
       <%= date_range_picker f, "Open/Close Date", :open_at, :close_at %>

@@ -25,6 +25,7 @@ defmodule SourceAcademy.Assessments.Assessment do
     field :description, :string, default: ""
     field :briefing, :string, default: ""
     field :max_xp, :integer, default: 0
+    field :priority, :integer, default: 0
 
     field :cover_url, Attachment.Type
     field :story_url, Attachment.Type
@@ -35,7 +36,7 @@ defmodule SourceAcademy.Assessments.Assessment do
   end
 
   @required_fields ~w(name title type open_at close_at max_xp library)a
-  @optional_fields ~w(description briefing is_published raw_library)a
+  @optional_fields ~w(description briefing is_published raw_library priority)a
 
   @optional_file_fields ~w(cover_url story_url)a
 

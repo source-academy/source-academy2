@@ -1,10 +1,13 @@
-<%= for category <- @categories do %>
+<% categories = @categories
+    |> Enum.sort_by(&(&1.name)) %>
+<%= for category <- categories do %>
   <div class="sa-panel">
     <div class="heading">
       <%= category.name %>
     </div>
     <div class="body">
-      <% materials = Enum.filter(@materials, &(&1.category_id == category.id)) %>
+      <% materials = Enum.filter(@materials, &(&1.category_id == category.id))
+          |> Enum.sort_by(&(&1.title)) %>
       <%= render "list.html", conn: @conn, materials: materials %>
     </div> <!-- .body  -->
   </div>

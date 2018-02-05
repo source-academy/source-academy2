@@ -12,8 +12,7 @@
     </thead>
     <tbody>
       <% assessments = @assessments
-          |> Enum.sort_by(&(&1.name))
-          |> Enum.reverse %>
+          |> Enum.sort_by(&(&1.name), &(elem(Float.parse(&1),0) <= elem(Float.parse(&2),0))) %>
       <%= for assessment <- assessments do %>
           <tr>
             <td>

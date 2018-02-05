@@ -1,6 +1,9 @@
 <%= render "tabs.html", conn: @conn %>
 
-<%= for assessment <- @assessments do %>
+<% assessments = @assessments
+    |> Enum.sort_by(&(&1.name), &(elem(Float.parse(&1),0) <= elem(Float.parse(&2),0))) %>
+
+<%= for assessment <- assessments do %>
   <%= render SourceAcademyWeb.AssessmentView, "card.html",
         conn: @conn,
         assessment: assessment,

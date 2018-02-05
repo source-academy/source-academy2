@@ -142,6 +142,8 @@ defmodule SourceAcademy.Router do
     resources "/student_achievements", StudentAchievementController, only: [:new, :create]
 
     resources "/assessments", AssessmentController do
+      put "/priorityup", AssessmentController, :priorityup, as: :priorityup
+      put "/prioritydown", AssessmentController, :prioritydown, as: :prioritydown
       put "/publish", AssessmentController, :publish, as: :publish
       get "/submissions", AssessmentController, :submissions, as: :submissions
 

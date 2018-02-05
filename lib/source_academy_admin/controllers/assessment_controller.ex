@@ -126,4 +126,20 @@ defmodule SourceAcademyAdmin.AssessmentController do
         |> render("grading/edit.html", changeset: changeset)
     end
   end
+
+  def priorityup(conn, %{
+    "assessment_id" => aid
+    }) do
+    Assessments.priority(aid, 1)
+    conn
+    |> redirect(to: admin_assessment_path(conn, :index))
+  end
+
+  def prioritydown(conn, %{
+    "assessment_id" => aid
+    }) do
+    Assessments.priority(aid, -1)
+    conn
+    |> redirect(to: admin_assessment_path(conn, :index))
+  end
 end

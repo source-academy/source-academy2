@@ -1,6 +1,4 @@
 import * as React from 'react'
-// @ts-ignore
-import * as JsDiff from 'diff'
 import { findDOMNode } from 'react-dom'
 import { Button, Intent, Dialog, Classes, Icon } from '@blueprintjs/core'
 import Moment from 'moment-timezone'

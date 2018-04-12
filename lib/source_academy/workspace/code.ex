@@ -9,13 +9,14 @@ defmodule SourceAcademy.Workspace.Code do
     field :content, :string, default: "\n"
     field :is_public, :boolean, default: false
     field :is_readonly, :boolean, default: false
+    field :saved_at, Timex.Ecto.DateTime, default: Timex.now()
 
     belongs_to :owner, User
 
     timestamps()
   end
 
-  @required_fields ~w()a
+  @required_fields ~w(saved_at)a
   @optional_fields ~w(title content is_public is_readonly)a
 
   def changeset(code, params \\ :empty) do

@@ -6,7 +6,7 @@ defmodule SourceAcademyApi.CodeController do
 
   def update(conn, %{"id" => id, "content" => content} = params) do
     current_user = conn.assigns.current_user
-    case Workspace.update_code(id, %{content: content}, current_user) do
+    case Workspace.update_code(id, %{content: content, saved_at: Timex.now() }, current_user) do
       {:error, status} ->
         conn
         |> put_status(status)
@@ -15,6 +15,7 @@ defmodule SourceAcademyApi.CodeController do
         json(conn, %{
           id: code.id,
           content: code.content,
+          savedAt: code.saved_at
         })
     end
   end

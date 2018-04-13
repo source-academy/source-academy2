@@ -113,8 +113,18 @@ export type MCQQuestion = {
   choices: MCQChoice[]
 }
 
+export type VersionHistory = {
+  title: string
+  content: string
+  id: number
+  generatedAt: Date
+}
+
+export type CodeHistory = VersionHistory[]
+
 export type Shape = {
   config: Config
+  codeHistory: CodeHistory
   programmingQuestion: ProgrammingQuestion
   interpreter: InterpreterState
   editor: EditorState

@@ -56,7 +56,7 @@ defmodule SourceAcademyApi.CodeController do
         json(conn, %{
           id: code.id,
           content: code.content,
-          code_history: old_codes,
+          codeHistory: old_codes,
           savedAt: code.updated_at
         })
     end

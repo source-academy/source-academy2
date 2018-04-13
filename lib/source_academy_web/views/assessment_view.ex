@@ -90,7 +90,7 @@ defmodule SourceAcademyWeb.AssessmentView do
           }))
         },
         comments: comments,
-        code_history: code_history
+        codeHistory: code_history
       })
     else
       choices = question.mcq_question.choices

@@ -142,11 +142,32 @@ export class Closure {
     context: Context
   ) {
     this.node = node
-    if (this.node.id) {
-      this.name = this.node.id.name
-    } else {
+    try {
+      if (this.node.id) {
+        this.name = this.node.id.name
+      }
+    } catch (e) {
       this.name = `Anonymous${++Closure.lambdaCtr}`
     }
+    this.fun = closureToJS(this, context, this.name)
+  }
+}
+
+/**
+ * Modified from class Closure, for construction of arrow functions.
+ */
+export class ArrowClosure {
+  /** Keep track how many lambdas are created */
+  private static arrowCtr = 0
+
+  /** Unique ID defined for anonymous closure */
+  public name: string
+
+  /** Fake closure function */
+  public fun: Function
+
+  constructor(public node: es.Function, public frame: Frame, context: Context) {
+    this.name = `Anonymous${++ArrowClosure.arrowCtr}`
     this.fun = closureToJS(this, context, this.name)
   }
 }

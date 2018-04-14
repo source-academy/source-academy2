@@ -4,7 +4,7 @@ import api from '../api'
 import getInitialPlaygroundState from './getInitialPlaygroundState'
 
 const DEFAULT_LIBRARY = {
-  title: 'source_week_3',
+  title: 'Source §1',
   week: 3,
   externals: [],
   files: [],

@@ -67,7 +67,7 @@ defmodule SourceAcademyWeb.AssessmentView do
           createdAt: display_datetime(&1.inserted_at),
           title: &1.title,
           id: &1.id,
-          generated_at: &1.generated_at
+          generatedAt: &1.generated_at
         }
       ))
       Map.merge(base, %{

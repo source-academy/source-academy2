@@ -42,8 +42,8 @@ defmodule SourceAcademyApi.CodeController do
             id: &1.id,
             content: &1.content,
             title: &1.title,
-            created_at: ViewHelpers.display_datetime(&1.inserted_at),
-            generated_at: &1.generated_at
+            createdAt: ViewHelpers.display_datetime(&1.inserted_at),
+            generatedAt: &1.generated_at
           }
         ))
     end

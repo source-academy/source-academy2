@@ -1,6 +1,6 @@
 .sa-workspace {
   height: 100%;
-  background: $dark-gray1;
+  background: #00FF00;
 
   .editor-container {
     height: 86vh;
@@ -8,7 +8,7 @@
     padding-left: 20px;
     padding-right: 0px;
     padding-bottom: 20px;
-    background: $dark-gray1;
+    background: #00FF00;
   }
   .col-xs-6, .col-xs {
     padding: 0;
@@ -17,6 +17,7 @@
     height: 100%;
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
+    background: #00FF00;
   }
   .body {
     margin-top: $pt-navbar-height;
@@ -28,7 +29,7 @@
   }
   .side {
     position: relative;
-    background: $dark-gray1;
+    background: #00FF00;
     .controls {
       position: absolute;
       right: 20px;
@@ -57,6 +58,7 @@
     .input, .output {
       padding-left: 20px;
       position: relative;
+      background: #00FF00;
     }
 
     .input {
@@ -65,7 +67,7 @@
 
     .output pre {
       color: white;
-      background: $dark-gray2;
+      background: #00FF00;
     }
 
     .output pre code {
@@ -93,14 +95,14 @@
     }
 
     pre.value {
-      color: $gray4;
+      color: $gray1;
     }
 
     .errors {
       color: $red4;
       font-size: 0.8em;
       font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
-      background-color: $dark-gray4;
+      background-color: #00FF00;
       margin-bottom: 10px;
       font-weight: 500;
       padding: 10px;
@@ -118,6 +120,28 @@
   .interpreter .editor {
     height: 80px;
   }
+}
+
+// ace_* classes only serve to override the
+// corresponding classes in the brace module 
+// to simulate a Green Screen effect.
+.ace_gutter {
+    background: #00FF00 !important;
+}
+.ace_gutter-cell {
+    background: #00FF00;
+    color: $gray2;
+}
+.ace_line {
+    background: #00FF00;
+    color: $gray2;
+}
+.ace_focus {
+    background: green;
+    color: $gray2;
+} 
+.ace-ayu-mirage .ace_marker-layer .ace_active-line {
+    background: none !important;
 }
 
 .sa-question {

@@ -139,13 +139,24 @@ defmodule SourceAcademy.Workspace do
       code.is_readonly ->
         {:error, :forbidden}
       true ->
-        new_code = create_history_code(%{
-          title: "history",
-          content: code.content,
-          generated_at: code.updated_at
-        }, user, save_history)
-        save_history = Repo.preload(save_history, :codes)
-        {:ok, save_history}
+        if params[:content] != code.content do
+          new_code = create_history_code(%{
+            title: "history",
+            content: code.content,
+            generated_at: code.updated_at
+          }, user, save_history)
+          save_history = Repo.preload(save_history, :codes)
+          {:ok, save_history}
+        else
+          save_history = Repo.preload(save_history, :codes)
+          #codes = save_history.codes
+          #codes
+          #|> Enum.filter(&(&1.title == "history"))
+          #|> Enum.filter(&(&1.content == params[:content]))
+          #|> Enum.map(&(Code.changeset(&1, %{generated_at: Timex.now()})))
+          #|> Enum.map(&(Repo.update(&1)))
+          {:ok, save_history}
+        end
       end
   end
 

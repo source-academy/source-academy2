@@ -36,7 +36,7 @@ defmodule SourceAcademyApi.CodeController do
         |> Enum.filter(&(oldest == nil || &1.id != oldest.id))
         |> Enum.filter(&(&1.title == "history"))
         |> Enum.sort(&(&1.inserted_at <= &2.inserted_at))
-        |> Enum.sort(&(&1.generated_at <= &2.generated_at))
+        |> Enum.sort(&(&1.generated_at >= &2.generated_at))
         |> Enum.map(&(
           %{
             id: &1.id,

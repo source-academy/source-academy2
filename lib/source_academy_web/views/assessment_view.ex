@@ -60,7 +60,7 @@ defmodule SourceAcademyWeb.AssessmentView do
       code_history = code_history
       |> Enum.filter(&(&1.title == "history"))
       |> Enum.sort(&(&1.inserted_at <= &2.inserted_at))
-      |> Enum.sort(&(&1.generated_at <= &2.generated_at))
+      |> Enum.sort(&(&1.generated_at >= &2.generated_at))
       |> Enum.map(&(
         %{
           content: &1.content,

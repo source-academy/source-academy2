@@ -90,3 +90,8 @@ export const selectChoiceSuccess = (payload: number) => ({
 export const interruptExecution = () => ({
   type: actionTypes.INTERRUPT_EXECUTION
 })
+
+export const updateCodeHistory = (payload: object) => ({
+  type: actionTypes.UPDATE_CODE_HISTORY,
+  payload
+})

@@ -54,31 +54,48 @@ const getBody = (
   }
 }
 
-const ProgrammingWorkspace: React.StatelessComponent<Props> = props => {
-  const interpreter = <Interpreter />
-  const question = <Question content={props.content} />
-  const comments = <Comments />
-  const editor = <Editor />
-  const versionHistory = <VersionHistory />
-  const listVisualizer = window.ListVisualizer ? <ListVisualizer /> : <div />
-  const toneMatrix = window.ToneMatrix ? <ToneMatrix /> : <div />
-  const side = (
-    <SideContent
-      interpreter={interpreter}
-      question={question}
-      comments={comments}
-      versionHistory={versionHistory}
-      listVisualizer={listVisualizer}
-      toneMatrix={toneMatrix}
-    />
-  )
-  const body = getBody(props, editor, side)
-  return (
-    <div className="sa-workspace">
-      <PlaygroundControl />
-      {body}
-    </div>
-  )
+class ProgrammingWorkspace extends React.Component<Props> {
+  constructor(props) {
+    super(props)
+    this.state = {
+      newEditorValue: ''
+    }
+  }
+
+  changeNewEditorValue = (str: string) => {
+    this.setState(prevState => ({
+      newEditorValue: str
+    }))
+  }
+
+  render() {
+    const interpreter = <Interpreter />
+    const question = <Question content={this.props.content} />
+    const comments = <Comments />
+    const editor = <Editor newEditorValue={this.state.newEditorValue} />
+    const versionHistory = (
+      <VersionHistory changeNewEditorValue={this.changeNewEditorValue} />
+    )
+    const listVisualizer = window.ListVisualizer ? <ListVisualizer /> : <div />
+    const toneMatrix = window.ToneMatrix ? <ToneMatrix /> : <div />
+    const side = (
+      <SideContent
+        interpreter={interpreter}
+        question={question}
+        comments={comments}
+        versionHistory={versionHistory}
+        listVisualizer={listVisualizer}
+        toneMatrix={toneMatrix}
+      />
+    )
+    const body = getBody(this.props, editor, side)
+    return (
+      <div className="sa-workspace">
+        <PlaygroundControl />
+        {body}
+      </div>
+    )
+  }
 }
 
 export default connect(mapStateToProps)(ProgrammingWorkspace)

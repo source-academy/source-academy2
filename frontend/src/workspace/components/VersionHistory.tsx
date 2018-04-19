@@ -3,14 +3,21 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import * as actions from '../actions'
 import { Shape, VersionHistory } from '../shape'
-import { Button, Intent, Collapse } from '@blueprintjs/core'
+import {
+  Button,
+  Intent,
+  Popover,
+  PopoverInteractionKind
+} from '@blueprintjs/core'
 import Moment from 'moment-timezone'
 
-export type OwnProps = {}
+export type OwnProps = {
+  changeNewEditorValue: (content: string) => any
+}
 
 export type Props = OwnProps & {
   versionHistories: VersionHistory[]
-  setEditor: (content: string) => any
+  setEditorValue: (content: string) => any
 }
 
 const mapStateToProps = (state: Shape, ownProps: OwnProps) => ({
@@ -20,7 +27,7 @@ const mapStateToProps = (state: Shape, ownProps: OwnProps) => ({
 const mapDispatchToProps = (dispatch: Dispatch<Shape>) =>
   bindActionCreators(
     {
-      setEditor: actions.setEditorValue
+      setEditorValue: actions.setEditorValue
     },
     dispatch
   )
@@ -32,15 +39,17 @@ const containerStyle: React.CSSProperties = {
 
 const VersionHistoryComponent: React.StatelessComponent<Props> = ({
   versionHistories,
-  setEditor
+  setEditorValue,
+  changeNewEditorValue
 }) => {
   return (
     <div className="pt-dark" style={containerStyle}>
       {versionHistories.map((versionHistory, idx) => (
         <VersionHistoryCard
+          changeNewEditorValue={changeNewEditorValue}
           history={versionHistory}
           key={idx}
-          setEditorValue={setEditor}
+          setEditorValue={setEditorValue}
         />
       ))}
     </div>
@@ -50,13 +59,14 @@ const VersionHistoryComponent: React.StatelessComponent<Props> = ({
 type VersionHistoryProps = {
   history: VersionHistory
   setEditorValue: (content: string) => any
+  changeNewEditorValue: (content: string) => any
 }
 
 class VersionHistoryCard extends React.Component<
   VersionHistoryProps,
   { isOpen: boolean }
 > {
-  constructor(props) {
+  constructor(props: VersionHistoryProps) {
     super(props)
     this.state = { isOpen: false }
   }
@@ -67,26 +77,29 @@ class VersionHistoryCard extends React.Component<
     }))
   }
 
+  useHistory = () => {
+    this.props.changeNewEditorValue(this.props.history.content)
+    this.props.setEditorValue(this.props.history.content)
+  }
+
   render() {
-    console.log(this.props.history)
     return (
-      <div className="pt-card pt-elevation-2" onClick={this.handleClick}>
-        <p className="pt-ui-text">
-          {Moment(this.props.history.generatedAt).format(
-            'MMMM Do YYYY hh:mm:ss a'
-          )}
-        </p>
-        <Collapse isOpen={this.state.isOpen}>
-          <p>{this.props.history.content}</p>
-          <Button
-            intent={Intent.PRIMARY}
-            onClick={() =>
-              this.props.setEditorValue(this.props.history.content)}
-          >
-            Use
-          </Button>
-        </Collapse>
-      </div>
+      <Popover
+        useSmartPositioning={true}
+        interactionKind={PopoverInteractionKind.HOVER}
+        popoverClassName="pt-popover-content-sizing"
+      >
+        <div className="pt-card pt-elevation-2" onClick={this.useHistory}>
+          <p className="pt-ui-text">
+            {Moment(this.props.history.generatedAt).format(
+              'MMMM Do YYYY hh:mm:ss a'
+            )}
+          </p>
+        </div>
+        <div>
+          <pre>{this.props.history.content}</pre>
+        </div>
+      </Popover>
     )
   }
 }

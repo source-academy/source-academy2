@@ -7,7 +7,9 @@ import * as actions from '../actions'
 import { Shape } from '../shape'
 import createEditor from '../../common/createEditor'
 
-export type OwnProps = {}
+export type OwnProps = {
+  newEditorValue: string
+}
 
 export type Props = OwnProps & {
   initialValue: string
@@ -31,6 +33,12 @@ const mapDispatchToProps = (dispatch: Dispatch<Shape>) =>
 class Editor extends React.Component<Props, any> {
   $editor: HTMLDivElement | null
   editor: AceAjax.Editor
+
+  componentWillUpdate(prevProps: Props) {
+    if (prevProps.newEditorValue !== this.props.newEditorValue) {
+      this.editor.getSession().setValue(prevProps.newEditorValue)
+    }
+  }
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.isReadOnly !== this.props.isReadOnly) {

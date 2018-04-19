@@ -6,7 +6,12 @@ import { takeEvery, select, call, put, take, race } from 'redux-saga/effects'
 
 import { showSuccessMessage, showWarningMessage } from '../notification'
 import { Shape } from '../shape'
-import { Context, createContext, runInContext, interrupt } from '../../toolchain'
+import {
+  Context,
+  createContext,
+  runInContext,
+  interrupt
+} from '../../toolchain'
 
 import * as actionTypes from '../actionTypes'
 import * as actions from '../actions'
@@ -52,7 +57,7 @@ async function postComment(content: string, codeID: string) {
 }
 
 function* evalCode(code: string, context: Context) {
-  const {result, interrupted} = yield race({
+  const { result, interrupted } = yield race({
     result: call(runInContext, code, context),
     interrupted: take(actionTypes.INTERRUPT_EXECUTION)
   })
@@ -117,7 +122,8 @@ function* editorSaga() {
     const action = yield select((state: Shape) => state.config.saveAction)
     if (action) {
       const content = yield select((state: Shape) => state.editor.value)
-      yield call(exactApi.put, action, { content: content })
+      const json = yield call(exactApi.put, action, { content: content })
+      yield put(actions.updateCodeHistory(json.data.codeHistory))
       yield put(actions.saveEditorSuccess())
     }
   })

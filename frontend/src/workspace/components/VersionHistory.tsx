@@ -4,12 +4,14 @@ import { connect } from 'react-redux'
 import * as actions from '../actions'
 import { Shape, VersionHistory } from '../shape'
 import {
-  Button,
-  Intent,
   Popover,
-  PopoverInteractionKind
+  PopoverInteractionKind,
+  Position,
+  Button,
+  Intent
 } from '@blueprintjs/core'
 import Moment from 'moment-timezone'
+import ReadOnlyEditor from './ReadOnlyEditor'
 
 export type OwnProps = {
   changeNewEditorValue: (content: string) => any
@@ -34,7 +36,9 @@ const mapDispatchToProps = (dispatch: Dispatch<Shape>) =>
 
 const containerStyle: React.CSSProperties = {
   marginLeft: '20px',
-  marginRight: '20px'
+  marginRight: '20px',
+  maxHeight: '75vh',
+  overflowY: 'scroll'
 }
 
 const VersionHistoryComponent: React.StatelessComponent<Props> = ({
@@ -62,43 +66,46 @@ type VersionHistoryProps = {
   changeNewEditorValue: (content: string) => any
 }
 
-class VersionHistoryCard extends React.Component<
-  VersionHistoryProps,
-  { isOpen: boolean }
-> {
-  constructor(props: VersionHistoryProps) {
-    super(props)
-    this.state = { isOpen: false }
-  }
-
-  handleClick = () => {
-    this.setState(prevState => ({
-      isOpen: !prevState.isOpen
-    }))
-  }
-
+class VersionHistoryCard extends React.Component<VersionHistoryProps> {
   useHistory = () => {
     this.props.changeNewEditorValue(this.props.history.content)
     this.props.setEditorValue(this.props.history.content)
   }
 
   render() {
+    const saveDate = Moment(this.props.history.generatedAt)
     return (
       <Popover
-        useSmartPositioning={true}
+        position={Position.LEFT_BOTTOM}
         interactionKind={PopoverInteractionKind.HOVER}
         popoverClassName="pt-popover-content-sizing"
+        className="sa-popover-fill"
       >
-        <div className="pt-card pt-elevation-2" onClick={this.useHistory}>
-          <p className="pt-ui-text">
-            {Moment(this.props.history.generatedAt).format(
-              'MMMM Do YYYY hh:mm:ss a'
-            )}
-          </p>
+        <div
+          className="pt-card pt-elevation-2"
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between'
+          }}
+        >
+          <div>
+            <p className="pt-text-muted" style={{ marginBottom: 0 }}>
+              Saved at
+            </p>
+            <p className="pt-ui-text">
+              {saveDate.format('MMMM Do YYYY hh:mm:ss a')} ({saveDate.fromNow()})
+            </p>
+          </div>
+          <Button intent={Intent.PRIMARY} onClick={this.useHistory}>
+            Use
+          </Button>
         </div>
-        <div>
-          <pre>{this.props.history.content}</pre>
-        </div>
+        <ReadOnlyEditor
+          content={this.props.history.content}
+          width="300px"
+          height="200px"
+          fontSize="12px"
+        />
       </Popover>
     )
   }

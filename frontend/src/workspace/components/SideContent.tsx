@@ -25,7 +25,7 @@ const TAB_ICONS: { [tab: string]: string } = {
   interpreter: IconClasses.APPLICATION,
   question: IconClasses.HELP,
   comments: IconClasses.COMMENT,
-  versions: IconClasses.CHANGES,
+  versions: IconClasses.HISTORY,
   tests: IconClasses.COMPARISON,
   grading: IconClasses.SAVED,
   list_visualizer: IconClasses.EYE_OPEN,

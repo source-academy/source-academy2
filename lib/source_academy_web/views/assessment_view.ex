@@ -77,7 +77,8 @@ defmodule SourceAcademyWeb.AssessmentView do
         }),
         editor: %{
           id: answer.code.id,
-          value: answer.code.content
+          value: answer.code.content,
+          savedAt: answer.code.updated_at
         },
         programmingQuestion: %{
           id: question.programming_question.id,

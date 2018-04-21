@@ -80,6 +80,7 @@ export type EditorState = {
   id?: string
   isDirty: boolean
   value: string
+  savedAt?: Date
 }
 
 export type DebugState = {

@@ -10,6 +10,7 @@ import Comments from './Comments'
 import PlaygroundControl from './PlaygroundControl'
 import ListVisualizer from './ListVisualizer'
 import ToneMatrix from './ToneMatrix'
+import VersionHistory from './VersionHistory'
 
 export type OwnProps = {}
 export type Props = OwnProps & {
@@ -34,56 +35,67 @@ const getBody = (
     case LayoutTypes.SPLIT:
       return (
         <div className="body row">
-          <div className="col-xs-6">
-            {editor}
-          </div>
-          <div className="col-xs">
-            {sideContent}
-          </div>
+          <div className="col-xs-6">{editor}</div>
+          <div className="col-xs">{sideContent}</div>
         </div>
       )
     case LayoutTypes.EDITOR_ONLY:
       return (
         <div className="body row">
-          <div className="col-xs-12">
-            {editor}
-          </div>
+          <div className="col-xs-12">{editor}</div>
         </div>
       )
     default:
       return (
         <div className="body row">
-          <div className="col-xs-12">
-            {sideContent}
-          </div>
+          <div className="col-xs-12">{sideContent}</div>
         </div>
       )
   }
 }
 
-const ProgrammingWorkspace: React.StatelessComponent<Props> = props => {
-  const interpreter = <Interpreter />
-  const question = <Question content={props.content} />
-  const comments = <Comments />
-  const editor = <Editor />
-  const listVisualizer = window.ListVisualizer ? <ListVisualizer /> : <div />
-  const toneMatrix = window.ToneMatrix ? <ToneMatrix /> : <div />
-  const side = (
-    <SideContent
-      interpreter={interpreter}
-      question={question}
-      comments={comments}
-      listVisualizer={listVisualizer}
-      toneMatrix={toneMatrix}
-    />
-  )
-  const body = getBody(props, editor, side)
-  return (
-    <div className="sa-workspace">
-      <PlaygroundControl />
-      {body}
-    </div>
-  )
+class ProgrammingWorkspace extends React.Component<Props> {
+  constructor(props) {
+    super(props)
+    this.state = {
+      newEditorValue: ''
+    }
+  }
+
+  changeNewEditorValue = (str: string) => {
+    this.setState(prevState => ({
+      newEditorValue: str
+    }))
+  }
+
+  render() {
+    const interpreter = <Interpreter />
+    const question = <Question content={this.props.content} />
+    const comments = <Comments />
+    const editor = <Editor newEditorValue={this.state.newEditorValue} />
+    const versionHistory = (
+      <VersionHistory changeNewEditorValue={this.changeNewEditorValue} />
+    )
+    const listVisualizer = window.ListVisualizer ? <ListVisualizer /> : <div />
+    const toneMatrix = window.ToneMatrix ? <ToneMatrix /> : <div />
+    const side = (
+      <SideContent
+        interpreter={interpreter}
+        question={question}
+        comments={comments}
+        versionHistory={versionHistory}
+        listVisualizer={listVisualizer}
+        toneMatrix={toneMatrix}
+      />
+    )
+    const body = getBody(this.props, editor, side)
+    return (
+      <div className="sa-workspace">
+        <PlaygroundControl />
+        {body}
+      </div>
+    )
+  }
 }
 
 export default connect(mapStateToProps)(ProgrammingWorkspace)

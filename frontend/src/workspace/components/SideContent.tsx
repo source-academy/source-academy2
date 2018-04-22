@@ -11,19 +11,21 @@ export type OwnProps = {
   comments: React.ReactElement<any> | JSX.Element
   listVisualizer: React.ReactElement<any> | JSX.Element
   toneMatrix: React.ReactElement<any> | JSX.Element
+  versionHistory: React.ReactElement<any> | JSX.Element
 }
 
 export type Props = OwnProps & {
-  activeTab: string,
-  assessmentType: string,
+  activeTab: string
+  assessmentType: string
   isPlayground: boolean
   setActiveTab: (activeTab: string) => any
 }
 
-const TAB_ICONS: {[tab:string]: string} = {
+const TAB_ICONS: { [tab: string]: string } = {
   interpreter: IconClasses.APPLICATION,
   question: IconClasses.HELP,
   comments: IconClasses.COMMENT,
+  versions: IconClasses.HISTORY,
   tests: IconClasses.COMPARISON,
   grading: IconClasses.SAVED,
   list_visualizer: IconClasses.EYE_OPEN,
@@ -44,12 +46,17 @@ const mapStateToProps = (state: Shape, ownProps: OwnProps) => ({
   isPlayground: state.config.isPlayground
 })
 
-const getTabs = ({ isPlayground, assessmentType, activeTab, setActiveTab }: Props) => {
+const getTabs = ({
+  isPlayground,
+  assessmentType,
+  activeTab,
+  setActiveTab
+}: Props) => {
   let baseTabs: string[] = []
   if (isPlayground) {
     baseTabs = ['interpreter']
   } else {
-    baseTabs = ['question', 'interpreter', 'comments']
+    baseTabs = ['question', 'interpreter', 'comments', 'versions']
   }
   let extraTabs: string[] = []
   if (assessmentType === 'path') {
@@ -62,14 +69,14 @@ const getTabs = ({ isPlayground, assessmentType, activeTab, setActiveTab }: Prop
     extraTabs.push('tone_matrix')
   }
   const tabs = baseTabs.concat(extraTabs)
-  return tabs.map(key =>
+  return tabs.map(key => (
     <Button
       key={key}
       iconName={TAB_ICONS[key]}
       className={`pt-minimal ${activeTab === key ? 'pt-active' : ''}`}
       onClick={() => setActiveTab(key)}
     />
-  )
+  ))
 }
 
 const getBody = (props: Props) => {
@@ -87,6 +94,9 @@ const getBody = (props: Props) => {
     case 'tone_matrix':
       body = props.toneMatrix
       break
+    case 'versions':
+      body = props.versionHistory
+      break
     default:
       body = props.question
       break
@@ -101,15 +111,11 @@ const SideContent: React.StatelessComponent<Props> = props => {
     <div className="side">
       <div className="row">
         <div className="col-xs-12 pt-dark">
-          <div className="tabs pt-button-group pt-large">
-            {tabs}
-          </div>
+          <div className="tabs pt-button-group pt-large">{tabs}</div>
         </div>
       </div>
       <div className="row">
-        <div className="col-xs-12">
-          {body}
-        </div>
+        <div className="col-xs-12">{body}</div>
       </div>
     </div>
   )

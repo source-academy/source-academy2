@@ -80,6 +80,7 @@ export type EditorState = {
   id?: string
   isDirty: boolean
   value: string
+  savedAt?: Date
 }
 
 export type DebugState = {
@@ -113,8 +114,18 @@ export type MCQQuestion = {
   choices: MCQChoice[]
 }
 
+export type VersionHistory = {
+  title: string
+  content: string
+  id: number
+  generatedAt: Date
+}
+
+export type CodeHistory = VersionHistory[]
+
 export type Shape = {
   config: Config
+  codeHistory: CodeHistory
   programmingQuestion: ProgrammingQuestion
   interpreter: InterpreterState
   editor: EditorState

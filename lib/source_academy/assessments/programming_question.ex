@@ -4,6 +4,7 @@ defmodule SourceAcademy.Assessments.ProgrammingQuestion do
 
   alias SourceAcademy.Assessments.Question
   alias SourceAcademy.Assessments.TestCase
+  alias SourceAcademy.Assessments.SaveHistory
 
   @default_content """
 Type the description of the question here, using markdown.
@@ -36,6 +37,7 @@ Type the description of the question here, using markdown.
 
     belongs_to :question, Question
     has_many :test_cases, TestCase
+    has_many :history, SaveHistory, on_delete: :delete_all
 
     timestamps()
   end

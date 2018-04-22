@@ -20,6 +20,7 @@ defmodule SourceAcademy.Assessments do
   alias SourceAcademy.Assessments.TestCase
   alias SourceAcademy.Assessments.Submission
   alias SourceAcademy.Assessments.PathSubmission
+  alias SourceAcademy.Assessments.SaveHistory
 
   alias SourceAcademy.Workspace
   alias SourceAcademy.Workspace.Code
@@ -440,12 +441,35 @@ defmodule SourceAcademy.Assessments do
     end
   end
 
+  def get_or_create_save_history(question, submission) do
+    history = get_save_history(question, submission)
+    if history == nil do
+      student = Course.get_student(submission.student_id)
+      owner = Accounts.get_user(student.user_id)
+      {:ok, history} = create_save_history(
+        question,
+        submission
+      )
+      history
+    else
+      history
+    end
+  end
+
   def create_programming_answer(question, submission, code) do
     %ProgrammingAnswer{}
     |> ProgrammingAnswer.changeset(%{})
     |> put_assoc(:submission, submission)
     |> put_assoc(:question, question)
     |> put_assoc(:code, code)
+    |> Repo.insert
+  end
+
+  def create_save_history(question, submission) do
+    %SaveHistory{}
+    |> SaveHistory.changeset(%{})
+    |> put_assoc(:submission, submission)
+    |> put_assoc(:question, question)
     |> Repo.insert
   end
 
@@ -459,6 +483,14 @@ defmodule SourceAcademy.Assessments do
       from answer in ProgrammingAnswer,
       where: answer.submission_id == ^submission.id
         and answer.question_id == ^question.id
+    )
+  end
+
+  def get_save_history(question, submission) do
+    Repo.one(
+      from history in SaveHistory,
+      where: history.submission_id == ^submission.id
+      and history.question_id == ^question.id
     )
   end
 
@@ -705,17 +737,40 @@ defmodule SourceAcademy.Assessments do
     |> Repo.insert
   end
 
+  defp update_code_with_history(code, history) do
+    code = Repo.preload(code, :history)
+    code
+    |> Ecto.Changeset.change
+    |> Ecto.Changeset.put_assoc(:history, history)
+    |> Repo.update
+  end
+
   defp prepare_programming_question(programming_question, submission) do
+    history = get_or_create_save_history(
+      programming_question,
+      submission
+    )
+    
     answer = get_or_create_programming_answer(
       programming_question,
       submission
     )
+
     answer = Repo.preload(answer, :code)
+    code = answer.code
+    code = update_code_with_history(code, history)
+
+    history = Repo.preload(history, :codes)
+
+    code_history = history.codes;
+
+    
     comments = Workspace.comments_of(answer.code)
     %{
       type: :programming_question,
       answer: answer,
-      comments: comments
+      comments: comments,
+      code_history: code_history
     }
   end
 

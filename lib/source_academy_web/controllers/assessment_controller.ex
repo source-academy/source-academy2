@@ -60,7 +60,8 @@ defmodule SourceAcademyWeb.AssessmentController do
           answer: workspace.answer,
           assessment: workspace.assessment,
           student: student,
-          comments: workspace.comments)
+          comments: workspace.comments,
+          code_history: workspace.code_history)
       _ ->
         render(conn, "question.json", %{
           type: workspace.type,

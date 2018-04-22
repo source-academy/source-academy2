@@ -31,6 +31,11 @@ defmodule SourceAcademy.Workspace do
     Repo.get(Code, id)
   end
 
+  def get_history_by_code(code) do
+    code = Repo.preload(code, :history)
+    code.history
+  end
+
   def last_comment_of(code) do
     Repo.one(
       from c in Comment,
@@ -53,6 +58,14 @@ defmodule SourceAcademy.Workspace do
     changeset = params
       |> build_code()
       |> put_assoc(:owner, owner)
+    Repo.insert(changeset)
+  end
+
+  def create_history_code(params, owner, history) do
+    changeset = params
+      |> build_code()
+      |> put_assoc(:owner, owner)
+      |> put_assoc(:history, history)
     Repo.insert(changeset)
   end
 
@@ -105,4 +118,46 @@ defmodule SourceAcademy.Workspace do
         Repo.update(changeset)
       end
   end
+
+  def update_history_with_code(save_history, new_code) do
+    new_codes = save_history.codes ++ [new_code]
+                    |> Enum.map(&Ecto.Changeset.change/1)
+    save_history
+    |> Ecto.Changeset.change
+    |> Ecto.Changeset.put_assoc(:codes, new_codes)
+    |> Repo.update
+  end
+
+  def update_history(code_id, params, user) do
+    code = Repo.get(Code, code_id)
+    save_history = get_history_by_code(code)
+    cond do
+      code == nil ->
+        {:error, :not_found}
+      code.owner_id !== user.id ->
+        {:error, :unauthorized}
+      code.is_readonly ->
+        {:error, :forbidden}
+      true ->
+        if params[:content] != code.content do
+          new_code = create_history_code(%{
+            title: "history",
+            content: code.content,
+            generated_at: code.updated_at
+          }, user, save_history)
+          save_history = Repo.preload(save_history, :codes)
+          {:ok, save_history}
+        else
+          save_history = Repo.preload(save_history, :codes)
+          #codes = save_history.codes
+          #codes
+          #|> Enum.filter(&(&1.title == "history"))
+          #|> Enum.filter(&(&1.content == params[:content]))
+          #|> Enum.map(&(Code.changeset(&1, %{generated_at: Timex.now()})))
+          #|> Enum.map(&(Repo.update(&1)))
+          {:ok, save_history}
+        end
+      end
+  end
+
 end

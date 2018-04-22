@@ -27,6 +27,7 @@ defmodule SourceAcademyWeb.AssessmentView do
     answer = params[:answer]
     save_action = params[:save_action]
     comments = params[:comments]
+    code_history = params[:code_history]
 
     base = %{
       config: %{
@@ -55,6 +56,20 @@ defmodule SourceAcademyWeb.AssessmentView do
           posterName: display_name(&1.poster)
         }
       ))
+      
+      code_history = code_history
+      |> Enum.filter(&(&1.title == "history"))
+      |> Enum.sort(&(&1.inserted_at <= &2.inserted_at))
+      |> Enum.sort(&(&1.generated_at >= &2.generated_at))
+      |> Enum.map(&(
+        %{
+          content: &1.content,
+          createdAt: display_datetime(&1.inserted_at),
+          title: &1.title,
+          id: &1.id,
+          generatedAt: &1.generated_at
+        }
+      ))
       Map.merge(base, %{
         config: Map.merge(base.config, %{
           isReadOnly: answer.code.is_readonly,
@@ -62,7 +77,8 @@ defmodule SourceAcademyWeb.AssessmentView do
         }),
         editor: %{
           id: answer.code.id,
-          value: answer.code.content
+          value: answer.code.content,
+          savedAt: answer.code.updated_at
         },
         programmingQuestion: %{
           id: question.programming_question.id,
@@ -74,7 +90,8 @@ defmodule SourceAcademyWeb.AssessmentView do
             expected: &1.expectedResult
           }))
         },
-        comments: comments
+        comments: comments,
+        codeHistory: code_history
       })
     else
       choices = question.mcq_question.choices

@@ -60,6 +60,7 @@ export const importBuiltins = (context: Context) => {
     defineSymbol(context, 'math_PI', Math.PI)
     defineSymbol(context, 'math_sqrt', Math.sqrt)
     defineSymbol(context, 'runtime', misc.runtime)
+    defineSymbol(context, 'display', misc.display)
     defineSymbol(context, 'undefined', undefined)
     defineSymbol(context, 'parseInt', misc.parse_int)
     defineSymbol(context, 'prompt', prompt)
@@ -71,7 +72,6 @@ export const importBuiltins = (context: Context) => {
     defineSymbol(context, 'math_exp', Math.exp)
     defineSymbol(context, 'alert', alert)
     defineSymbol(context, 'math_floor', Math.floor)
-    defineSymbol(context, 'display', misc.display)
     defineSymbol(context, 'timed', misc.timed)
 
     // Define all Math libraries

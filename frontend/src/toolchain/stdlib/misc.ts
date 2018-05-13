@@ -57,3 +57,7 @@ export function parse_int(inputString: string, radix: number) {
     )
   }
 }
+
+export function runtime() {
+  return new Date().getTime()
+}

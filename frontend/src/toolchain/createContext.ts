@@ -59,6 +59,7 @@ export const importBuiltins = (context: Context) => {
   if (context.week >= 3) {
     defineSymbol(context, 'math_PI', Math.PI)
     defineSymbol(context, 'math_sqrt', Math.sqrt)
+    defineSymbol(context, 'runtime', misc.runtime)
     defineSymbol(context, 'undefined', undefined)
     defineSymbol(context, 'parseInt', misc.parse_int)
     defineSymbol(context, 'prompt', prompt)

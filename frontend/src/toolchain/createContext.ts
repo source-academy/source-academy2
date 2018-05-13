@@ -57,11 +57,7 @@ export const importBuiltins = (context: Context) => {
   ensureGlobalEnvironmentExist(context)
 
   if (context.week >= 3) {
-    defineSymbol(context, 'alert', alert)
-    defineSymbol(context, 'math_floor', Math.floor)
     defineSymbol(context, 'math_sqrt', Math.sqrt)
-    defineSymbol(context, 'math_log', Math.log)
-    defineSymbol(context, 'math_exp', Math.exp)
     defineSymbol(context, 'undefined', undefined)
     defineSymbol(context, 'parseInt', misc.parse_int)
     defineSymbol(context, 'prompt', prompt)
@@ -69,6 +65,10 @@ export const importBuiltins = (context: Context) => {
   }
 
   if (context.week >= 4) {
+    defineSymbol(context, 'math_log', Math.log)
+    defineSymbol(context, 'math_exp', Math.exp)
+    defineSymbol(context, 'alert', alert)
+    defineSymbol(context, 'math_floor', Math.floor)
     defineSymbol(context, 'display', misc.display)
     defineSymbol(context, 'timed', misc.timed)
 

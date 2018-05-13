@@ -40,3 +40,15 @@ export function array_length(xs: Value[]) {
   return xs.length
 }
 array_length.__SOURCE__ = 'array_length(xs)'
+
+export function parse_int(inputString: string, radix: number) {
+  const parsed = parseInt(inputString, radix)
+  if (inputString && radix && parsed) {
+    // the two arguments are provided, and parsed is not NaN
+    return parsed
+  } else {
+    throw new Error(
+      'parseInt expects two arguments a string s, and a positive integer i'
+    )
+  }
+}

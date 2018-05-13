@@ -14,12 +14,13 @@ export function display(value: Value) {
   }
 }
 window.display = display
-display.__SOURCE__ = 'display(v)'
+display.__SOURCE__ = 'display(a)'
 
 export function error_message(value: Value) {
   const output = toString(value)
   throw new Error(output)
 }
+error_message.__SOURCE__ = 'error(a)'
 
 // tslint:disable-next-line:no-any
 export function timed(this: any, f: Function) {
@@ -57,7 +58,9 @@ export function parse_int(inputString: string, radix: number) {
     )
   }
 }
+parse_int.__SOURCE__ = 'parse_int(s, i)'
 
 export function runtime() {
   return new Date().getTime()
 }
+runtime.__SOURCE__ = 'runtime()'

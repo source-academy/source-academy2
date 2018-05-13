@@ -16,6 +16,11 @@ export function display(value: Value) {
 window.display = display
 display.__SOURCE__ = 'display(v)'
 
+export function error_message(value: Value) {
+  const output = toString(value)
+  throw new Error(output)
+}
+
 // tslint:disable-next-line:no-any
 export function timed(this: any, f: Function) {
   var self = this

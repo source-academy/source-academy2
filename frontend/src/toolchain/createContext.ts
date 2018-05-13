@@ -65,6 +65,7 @@ export const importBuiltins = (context: Context) => {
     defineSymbol(context, 'undefined', undefined)
     defineSymbol(context, 'parseInt', misc.parse_int)
     defineSymbol(context, 'prompt', prompt)
+    defineSymbol(context, 'error', misc.error_message)
   }
 
   if (context.week >= 4) {

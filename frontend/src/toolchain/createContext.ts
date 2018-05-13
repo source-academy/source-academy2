@@ -62,6 +62,7 @@ export const importBuiltins = (context: Context) => {
     defineSymbol(context, 'math_sqrt', Math.sqrt)
     defineSymbol(context, 'math_log', Math.log)
     defineSymbol(context, 'math_exp', Math.exp)
+    defineSymbol(context, 'undefined', undefined)
     defineSymbol(context, 'parseInt', misc.parse_int)
   }
 

@@ -57,6 +57,7 @@ export const importBuiltins = (context: Context) => {
   ensureGlobalEnvironmentExist(context)
 
   if (context.week >= 3) {
+    defineSymbol(context, 'math_PI', Math.PI)
     defineSymbol(context, 'math_sqrt', Math.sqrt)
     defineSymbol(context, 'undefined', undefined)
     defineSymbol(context, 'parseInt', misc.parse_int)

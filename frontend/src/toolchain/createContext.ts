@@ -64,6 +64,7 @@ export const importBuiltins = (context: Context) => {
     defineSymbol(context, 'math_exp', Math.exp)
     defineSymbol(context, 'undefined', undefined)
     defineSymbol(context, 'parseInt', misc.parse_int)
+    defineSymbol(context, 'prompt', prompt)
   }
 
   if (context.week >= 4) {
@@ -108,7 +109,6 @@ export const importBuiltins = (context: Context) => {
     defineSymbol(context, 'enum_list', list.enum_list)
     defineSymbol(context, 'list_ref', list.list_ref)
     defineSymbol(context, 'accumulate', list.accumulate)
-    defineSymbol(context, 'prompt', prompt)
     if (window.ListVisualizer) {
       defineSymbol(context, 'draw', window.ListVisualizer.draw)
     } else {

@@ -63,7 +63,7 @@ export const importBuiltins = (context: Context) => {
     defineSymbol(context, 'display', misc.display)
     defineSymbol(context, 'error', misc.error_message)
     defineSymbol(context, 'prompt', prompt)
-    defineSymbol(context, 'parseInt', misc.parse_int)
+    defineSymbol(context, 'parse_int', misc.parse_int)
     defineSymbol(context, 'undefined', undefined)
   }
 

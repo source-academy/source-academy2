@@ -12,6 +12,7 @@ import noImplicitReturnUndefined from './noImplicitReturnUndefined'
 import noNonEmptyList from './noNonEmptyList'
 import noBlockArrowFunction from './noBlockArrowFunction'
 import noDeclareReserved from './noDeclareReserved'
+import noDeclareMutable from './noDeclareMutable'
 
 const rules: Array<Rule<es.Node>> = [
   bracesAroundIfElse,
@@ -23,7 +24,8 @@ const rules: Array<Rule<es.Node>> = [
   noImplicitReturnUndefined,
   noNonEmptyList,
   noBlockArrowFunction,
-  noDeclareReserved
+  noDeclareReserved,
+  noDeclareMutable
 ]
 
 export default rules

@@ -50,20 +50,6 @@ export class DisallowedConstructError implements SourceError {
   }
 }
 
-export class MutableVariableDeclarationError implements SourceError {
-  type = ErrorType.SYNTAX
-  severity = ErrorSeverity.ERROR
-  constructor(public location: es.SourceLocation, public message: string) {}
-
-  explain() {
-    return this.message
-  }
-
-  elaborate() {
-    return 'There is a syntax error in your program'
-  }
-}
-
 export class FatalSyntaxError implements SourceError {
   type = ErrorType.SYNTAX
   severity = ErrorSeverity.ERROR

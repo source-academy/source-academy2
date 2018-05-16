@@ -282,7 +282,7 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     const kind = node.kind
     const id = declaration.id as es.Identifier
     const value = yield* evaluate(declaration.init!, context)
-    defineVariable(context, kind, id.name, value)
+    defineVariable(context, id.name, value)
     return undefined
   },
   ContinueStatement: function*(node: es.ContinueStatement, context: Context) {
@@ -366,7 +366,7 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     const id = node.id as es.Identifier
     // tslint:disable-next-line:no-any
     const closure = new Closure(node as any, currentFrame(context), context)
-    defineVariable(context, undefined, id.name, closure)
+    defineVariable(context, id.name, closure)
     return undefined
   },
   IfStatement: function*(node: es.IfStatement, context: Context) {

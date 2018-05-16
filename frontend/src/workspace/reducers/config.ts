@@ -10,7 +10,7 @@ const init: Config = {
   libraries: [],
   activeTab: 'interpreter',
   library: {
-    title: 'source_week_3',
+    title: 'Source §1',
     externals: [],
     week: 3,
     files: [],

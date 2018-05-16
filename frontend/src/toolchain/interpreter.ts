@@ -1,5 +1,6 @@
 import * as es from 'estree'
 import {
+  ArrowClosure,
   Closure,
   Frame,
   Value,
@@ -30,7 +31,7 @@ class TailCallReturnValue {
 }
 
 const createFrame = (
-  closure: Closure,
+  closure: ArrowClosure | Closure,
   args: Value[],
   callExpression?: es.CallExpression
 ): Frame => {
@@ -73,6 +74,7 @@ function defineVariable(context: Context, name: string, value: Value) {
       new errors.VariableRedeclaration(context.runtime.nodes[0]!, name)
     )
   }
+
   frame.environment[name] = value
 
   return frame
@@ -125,7 +127,7 @@ const setVariable = (context: Context, name: string, value: any) => {
 
 const checkNumberOfArguments = (
   context: Context,
-  callee: Closure,
+  callee: ArrowClosure | Closure,
   args: Value[],
   exp: es.CallExpression
 ) => {
@@ -169,6 +171,9 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
   },
   FunctionExpression: function*(node: es.FunctionExpression, context: Context) {
     return new Closure(node, currentFrame(context), context)
+  },
+  ArrowFunctionExpression: function*(node: es.Function, context: Context) {
+    return new ArrowClosure(node, currentFrame(context), context)
   },
   Identifier: function*(node: es.Identifier, context: Context) {
     return getVariable(context, node.name)
@@ -274,6 +279,7 @@ export const evaluators: { [nodeType: string]: Evaluator<es.Node> } = {
     context: Context
   ) {
     const declaration = node.declarations[0]
+    const kind = node.kind
     const id = declaration.id as es.Identifier
     const value = yield* evaluate(declaration.init!, context)
     defineVariable(context, id.name, value)
@@ -456,7 +462,7 @@ export function* evaluate(node: es.Node, context: Context) {
 
 export function* apply(
   context: Context,
-  fun: Closure | Value,
+  fun: ArrowClosure | Closure | Value,
   args: Value[],
   node?: es.CallExpression,
   thisContext?: Value
@@ -484,6 +490,17 @@ export function* apply(
         // No Return Value, set it as undefined
         result = new ReturnValue(undefined)
       }
+    } else if (fun instanceof ArrowClosure) {
+      checkNumberOfArguments(context, fun, args, node!)
+      const frame = createFrame(fun, args, node)
+      frame.thisContext = thisContext
+      if (result instanceof TailCallReturnValue) {
+        replaceFrame(context, frame)
+      } else {
+        pushFrame(context, frame)
+        total++
+      }
+      result = new ReturnValue(yield* evaluate(fun.node.body, context))
     } else if (typeof fun === 'function') {
       try {
         const as = args.map(a => toJS(a, context))

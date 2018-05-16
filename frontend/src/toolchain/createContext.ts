@@ -57,15 +57,21 @@ export const importBuiltins = (context: Context) => {
   ensureGlobalEnvironmentExist(context)
 
   if (context.week >= 3) {
-    defineSymbol(context, 'alert', alert)
-    defineSymbol(context, 'math_floor', Math.floor)
+    defineSymbol(context, 'math_PI', Math.PI)
     defineSymbol(context, 'math_sqrt', Math.sqrt)
-    defineSymbol(context, 'math_log', Math.log)
-    defineSymbol(context, 'math_exp', Math.exp)
+    defineSymbol(context, 'runtime', misc.runtime)
+    defineSymbol(context, 'display', misc.display)
+    defineSymbol(context, 'error', misc.error_message)
+    defineSymbol(context, 'prompt', prompt)
+    defineSymbol(context, 'parse_int', misc.parse_int)
+    defineSymbol(context, 'undefined', undefined)
   }
 
   if (context.week >= 4) {
-    defineSymbol(context, 'display', misc.display)
+    defineSymbol(context, 'math_log', Math.log)
+    defineSymbol(context, 'math_exp', Math.exp)
+    defineSymbol(context, 'alert', alert)
+    defineSymbol(context, 'math_floor', Math.floor)
     defineSymbol(context, 'timed', misc.timed)
 
     // Define all Math libraries
@@ -106,8 +112,6 @@ export const importBuiltins = (context: Context) => {
     defineSymbol(context, 'enum_list', list.enum_list)
     defineSymbol(context, 'list_ref', list.list_ref)
     defineSymbol(context, 'accumulate', list.accumulate)
-    defineSymbol(context, 'prompt', prompt)
-    defineSymbol(context, 'parseInt', parseInt)
     if (window.ListVisualizer) {
       defineSymbol(context, 'draw', window.ListVisualizer.draw)
     } else {
